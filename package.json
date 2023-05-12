@@ -14,12 +14,8 @@
     "release": "release-it"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "peerDependencies": {
-    "react": ">=17",
-    "react-dom": ">=17"
-  },
+  "author": "Saleor Team",
+  "license" : "BSD-3-Clause",
   "dependencies": {
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6"
