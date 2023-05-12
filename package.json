@@ -1,0 +1,102 @@
+{
+  "name": "@saleor/auth-sdk",
+  "version": "0.1.0",
+  "description": "Auth SDK for Saleor",
+  "types": "index.d.ts",
+  "main": "index.js",
+  "scripts": {
+    "prepublishOnly": "pnpm build",
+    "watch": "tsup-node src/* --format esm,cjs --dts --watch",
+    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
+    "clean": "rm -rf ./dist/*",
+    "test": "vitest",
+    "lint": "prettier --loglevel warn --write . && eslint --fix .",
+    "release": "release-it"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "dependencies": {
+    "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6"
+  },
+  "optionalDependencies": {
+    "@apollo/client": "^3.7.14",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "urql": "^4.0.2"
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.7.14",
+    "@types/debug": "^4.1.7",
+    "@types/node": "^20.1.3",
+    "@types/node-fetch": "^2.6.3",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "@types/uuid": "^9.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.5",
+    "@typescript-eslint/parser": "^5.59.5",
+    "@vitejs/plugin-react": "^4.0.0",
+    "clean-publish": "^4.2.0",
+    "eslint": "8.40.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "prettier": "2.8.8",
+    "react": "^18.2.0",
+    "react-dom": "18.2.0",
+    "release-it": "^15.10.3",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4",
+    "urql": "^4.0.2",
+    "vite": "^4.3.5",
+    "vitest": "^0.31.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": "eslint --cache --fix",
+    "*.{js,ts,tsx,css,md,json}": "prettier --write"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./react/apollo": {
+      "types": "./react/apollo.d.ts",
+      "import": "./react/apollo.mjs",
+      "require": "./react/apollo.js"
+    },
+    "./react/urql": {
+      "types": "./react/urql.d.ts",
+      "import": "./react/urql.mjs",
+      "require": "./react/urql.js"
+    },
+    "./react": {
+      "types": "./react/index.d.ts",
+      "import": "./react/index.mjs",
+      "require": "./react/index.js"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saleor/saleor-auth-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/saleor/saleor-auth-sdk/issues"
+  },
+  "homepage": "https://github.com/saleor/saleor-auth-sdk#readme"
+}
