@@ -7,13 +7,14 @@ type Options = {
   fetchWithAuth: Fetch;
 }
 
-// TODO
-// // for static geenration of pages, we don't need auth there
-// export const serverApolloClient = new ApolloClient({
-//   link: createHttpLink({ uri: API_URI }),
-//   cache: new InMemoryCache({ typePolicies }),
-//   ssrMode: true,
-// });
+const { ApolloClient, createHttpLink, InMemoryCache } = Apollo;
+
+// for static geenration of pages, we don't need auth there
+export const createServerSideApolloClient = (uri: string) => new ApolloClient({
+  link: createHttpLink({ uri }),
+  cache: new InMemoryCache({}),
+  ssrMode: true,
+});
 
 export const useAuthenticatedApolloClient = (opts: Options) => {
   const httpLink = createHttpLink({
