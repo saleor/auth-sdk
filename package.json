@@ -64,8 +64,8 @@
     "./package.json": "./package.json",
     "./react/apollo": {
       "types": "./react/apollo.d.ts",
-      "import": "./react/apollo.mjs",
-      "require": "./react/apollo.js"
+      "require": "./react/apollo.js",
+      "default": "./react/apollo.js"
     },
     "./react/urql": {
       "types": "./react/urql.d.ts",
