@@ -1,5 +1,5 @@
 import { Fetch } from "../types";
-import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 import { useMemo } from "react";
 
 type Options = {
