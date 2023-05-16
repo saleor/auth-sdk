@@ -32,6 +32,7 @@ export const useAuthenticatedApolloClient = (opts: Options) => {
 
   return {
     apolloClient,
-    reset: () => apolloClient.refetchQueries({ include: "all" })
+    reset: () => apolloClient.resetStore(),
+    refetch: () => apolloClient.refetchQueries({ include: "active" }),
   };
 };
