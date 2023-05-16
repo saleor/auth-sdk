@@ -7,11 +7,12 @@
   "scripts": {
     "prepublishOnly": "pnpm build",
     "watch": "tsup-node src/* --format esm,cjs --dts --watch",
-    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig",
+    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig && pnpm copy-files&& pnpm copy-files",
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
-    "release": "release-it"
+    "release": "release-it",
+    "copy-files": "cp README.md dist/README.md"
   },
   "keywords": [],
   "author": "Saleor Team",
