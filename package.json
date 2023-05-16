@@ -7,7 +7,7 @@
   "scripts": {
     "prepublishOnly": "pnpm build",
     "watch": "tsup-node src/* --format esm,cjs --dts --watch",
-    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig && pnpm copy-files&& pnpm copy-files",
+    "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig && pnpm copy-files",
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
     "lint": "prettier --loglevel warn --write . && eslint --fix .",
@@ -95,8 +95,5 @@
   "bugs": {
     "url": "https://github.com/saleor/auth-sdk/issues"
   },
-  "homepage": "https://github.com/saleor/auth-sdk#readme",
-  "files": [
-    "README.md"
-  ]
+  "homepage": "https://github.com/saleor/auth-sdk#readme"
 }
