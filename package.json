@@ -89,10 +89,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saleor/saleor-auth-sdk.git"
+    "url": "git+https://github.com/saleor/auth-sdk.git"
   },
   "bugs": {
-    "url": "https://github.com/saleor/saleor-auth-sdk/issues"
+    "url": "https://github.com/saleor/auth-sdk/issues"
   },
-  "homepage": "https://github.com/saleor/saleor-auth-sdk#readme"
+  "homepage": "https://github.com/saleor/auth-sdk#readme",
+  "files": [
+    "README.md"
+  ]
 }
