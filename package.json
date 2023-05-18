@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "prepublishOnly": "pnpm build",
+    "prebuild": "pnpm clean",
     "watch": "tsup-node src/* --format esm,cjs --dts --watch",
     "build": "tsup-node src/* --format esm,cjs --dts && clear-package-json package.json -o dist/package.json --fields publishConfig && pnpm copy-files",
     "clean": "rm -rf ./dist/*",
