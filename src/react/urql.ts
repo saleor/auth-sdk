@@ -8,7 +8,7 @@ export const useUrqlClient = (opts: ClientOptions) => {
 
   const [urqlClient, setUrqlClient] = useState<Client>(createNewClient());
 
-  const resetClient = () => setUrqlClient(createNewClient());
+  const reset = () => setUrqlClient(createNewClient());
 
-  return { urqlClient, resetClient };
+  return { urqlClient, reset, refetch: reset };
 };
