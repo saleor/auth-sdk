@@ -1,14 +1,7 @@
-import { SaleorAuthClient } from "../SaleorAuthClient";
 import { UseSaleorAuthClient } from "./useSaleorAuthClient";
 import { PropsWithChildren } from "react";
 import { invariant } from "../utils";
-import { createSafeContext } from "./context";
-
-type SaleorAuthContextConsumerProps = Pick<UseSaleorAuthClient, "isAuthenticating"> &
-  Omit<SaleorAuthClient, "fetchWithAuth" | "cleanup">;
-
-const [useSaleorAuthContext, Provider] = createSafeContext<SaleorAuthContextConsumerProps>();
-export { useSaleorAuthContext };
+import { Provider } from "./context";
 
 export const SaleorAuthProvider = ({
   children,

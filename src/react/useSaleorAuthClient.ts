@@ -10,7 +10,6 @@ export interface UseSaleorAuthClient {
  * This hook should be used only once per application.
  * @see Use {@link useSaleorAuthContext} for accessing the auth state.
  */
-
 export const useSaleorAuthClient = ({
   saleorApiUrl,
   storage,
