@@ -139,23 +139,22 @@ const response = await resetPassword({
 
 ## How do I use this with urql?
 
-Once an authentication change happens, you might want to refetch some of your queries. Because urql doesn't provide a direct way to invalidate cache manually, we're following urql's [proposed approach](https://github.com/urql-graphql/urql/issues/297#issuecomment-501646761) of installing a new instance of the client in place of the old one. We have a hook for that called `useUrqlClient` that takes urql `ClientOptions` as the only argument and returns the current `urqlClient` and the `resetClient` function:
+Once an authentication change happens, you might want to refetch some of your queries. Because urql doesn't provide a direct way to invalidate cache manually, we're following urql's [proposed approach](https://github.com/urql-graphql/urql/issues/297#issuecomment-501646761) of installing a new instance of the client in place of the old one. We have a hook for that called `useUrqlClient` that takes urql `ClientOptions` as the only argument and returns the current `urqlClient` and the `reset` & `refetch` functions:
 
 ```javascript
-const { urqlClient, resetClient } = useUrqlClient({
+const { urqlClient, reset, refetch} = useUrqlClient({
   url: saleorApiUrl,
   fetch: saleorAuthClient.fetchWithAuth,
   // other client props
 });
 ```
 
-Then, you may want to pass the `resetClient` function to the `useAuthChange` hook:
+Then, you may want to pass the `reset` & `refetch` functions to the `useAuthChange` hook:
 
 ```javascript
 useAuthChange({
-  storage,
-  onSignedOut: () => resetClient(),
-  onSignedIn: () => resetClient(),
+  onSignedOut: () => reset(),
+  onSignedIn: () => refetch(),
 });
 ```
 
@@ -172,7 +171,7 @@ export const App = () => {
 
   const { saleorAuthClient } = saleorAuthClientProps;
 
-  const { urqlClient, resetClient } = useUrqlClient({
+  const { urqlClient, reset, refetch } = useUrqlClient({
     suspense: true,
     requestPolicy: "cache-first",
     url: saleorApiUrl,
@@ -180,8 +179,8 @@ export const App = () => {
   });
 
   useAuthChange({
-    onSignedOut: () => resetClient(),
-    onSignedIn: () => resetClient(),
+    onSignedOut: () => reset(),
+    onSignedIn: () => refetch(),
   });
 
   return (
@@ -196,47 +195,18 @@ export const App = () => {
 
 ### How do I use it with Apollo?
 
-We provide support for Apollo with a hook called `useApolloClient` that authenticates fetch as its only argument and returns the current client, as well as the `resetClient` function:
+We provide support for Apollo with a hook called `useApolloClient` that authenticates fetch as its only argument and returns the current client, as well as the `reset` and the `refetch` functions:
 
 ```javascript
-const { apolloClient, resetClient } = useApolloClient(saleorAuthClient.fetchWithAuth);
+const { apolloClient, reset, refetch } = useApolloClient(saleorAuthClient.fetchWithAuth);
 ```
 
-Because we're using the client to also retrieve unauthenticated data in SSR, we separated them into two - one for SSR, which can be used outside of React flow, and the other returned by our hook.
-
-```javascript
-export const serverApolloClient = new ApolloClient({
-  link: createHttpLink({ uri: API_URI }),
-  cache: new InMemoryCache({ typePolicies }),
-  ssrMode: true,
-});
-
-export const useApolloClient = (fetchWithAuth: Fetch) => {
-  const httpLink = createHttpLink({
-    uri: API_URI,
-    fetch: fetchWithAuth,
-  });
-
-  const apolloClient = useMemo(
-    () =>
-      new ApolloClient({
-        link: httpLink,
-        cache: new InMemoryCache({ typePolicies }),
-      }),
-    []
-  );
-
-  return { apolloClient, resetClient: () => apolloClient.resetStore() };
-};
-```
-
-Once you get the client with authenticated fetch, you'll want to pass the `resetClient` function to the `useAuthChange` hook:
+Once you get the client with authenticated fetch, you'll want to pass the `reset` and `refetch` functions to the `useAuthChange` hook:
 
 ```javascript
 useAuthChange({
-  storage,
-  onSignedOut: () => resetClient(),
-  onSignedIn: () => resetClient(),
+  onSignedOut: () => reset(),
+  onSignedIn: () => refetch(),
 });
 ```
 
@@ -250,11 +220,11 @@ export const App = () => {
 
   const { saleorAuthClient } = saleorAuthClientProps;
 
-  const { apolloClient, resetClient } = useApolloClient(saleorAuthClient.fetchWithAuth);
+  const { apolloClient, reset, refetch } = useApolloClient(saleorAuthClient.fetchWithAuth);
 
   useAuthChange({
-    onSignedOut: () => resetClient(),
-    onSignedIn: () => resetClient(),
+    onSignedOut: () => reset(),
+    onSignedIn: () => refetch(),
   });
 
   return (
