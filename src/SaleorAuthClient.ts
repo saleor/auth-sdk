@@ -16,7 +16,7 @@ import { CHECKOUT_CUSTOMER_DETACH, PASSWORD_RESET, TOKEN_CREATE, TOKEN_REFRESH }
 export interface SaleorAuthClientProps {
   onAuthRefresh?: (isAuthenticating: boolean) => void;
   saleorApiUrl: string;
-  storage: Storage | undefined;
+  storage?: Storage;
 }
 
 export class SaleorAuthClient {

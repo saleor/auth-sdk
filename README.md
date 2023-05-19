@@ -38,7 +38,6 @@ The authentication occurs in the React component lifecycle by setting the event 
 ```javascript
 const { saleorAuthClient, isAuthenticating } = useSaleorAuthClient({
   saleorApiUrl: "https://master.staging.saleor.cloud",
-  storage: window.localStorage,
 });
 ```
 
@@ -164,10 +163,7 @@ useAuthChange({
 export const App = () => {
   const { saleorApiUrl } = getQueryParams();
   const { locale, messages } = useLocale();
-  const saleorAuthClientProps = useSaleorAuthClient({
-    saleorApiUrl,
-    storage: localStorage,
-  });
+  const saleorAuthClientProps = useSaleorAuthClient({ saleorApiUrl });
 
   const { saleorAuthClient } = saleorAuthClientProps;
 
@@ -213,10 +209,7 @@ useAuthChange({
 ```jsx
 export const App = () => {
   const { saleorApiUrl } = getQueryParams();
-  const saleorAuthClientProps = useSaleorAuthClient({
-    saleorApiUrl,
-    storage: localStorage,
-  });
+  const saleorAuthClientProps = useSaleorAuthClient({ saleorApiUrl });
 
   const { saleorAuthClient } = saleorAuthClientProps;
 
