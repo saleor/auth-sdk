@@ -1,0 +1,32 @@
+name: QA
+on:
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.0.0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm --version && pnpm install --frozen-lockfile
+
+      - name: Check prettier
+        run: pnpm prettier --check .
+
+      - name: Test
+        run: CI=true pnpm test
