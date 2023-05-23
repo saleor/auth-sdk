@@ -1,7 +1,6 @@
 import { it, describe, vi, expect } from "vitest";
-import { SaleorAuthClient } from "./SaleorAuthClient";
-import { REFRESH_TOKEN_KEY } from "./SaleorAuthStorageHandler";
-import * as utils from "./utils";
+import { SaleorAuthClient } from "../src/SaleorAuthClient";
+import { REFRESH_TOKEN_KEY } from "../src/SaleorAuthStorageHandler";
 
 describe("SaleorAuthClient", () => {
   const mockStorage = {
@@ -43,7 +42,7 @@ describe("SaleorAuthClient", () => {
         return refreshToken;
       }
     });
-    mockStorage.setItem.mockImplementation((key) => {});
+    mockStorage.setItem.mockImplementation((key) => { });
 
     fetchMock.mockResponse(async (req) => {
       if (req?.body?.toString().includes("tokenRefresh")) {
@@ -85,7 +84,7 @@ describe("SaleorAuthClient", () => {
         return refreshToken;
       }
     });
-    mockStorage.setItem.mockImplementation((key) => {});
+    mockStorage.setItem.mockImplementation((key) => { });
 
     fetchMock.mockResponse(async (req) => {
       if (req?.body?.toString().includes("tokenRefresh")) {
