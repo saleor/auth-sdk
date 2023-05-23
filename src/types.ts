@@ -24,7 +24,7 @@ export interface TokenRefreshResponse {
   data: {
     tokenRefresh: {
       token: string | undefined;
-      errors: any[];
+      errors?: any[];
     };
   };
 }

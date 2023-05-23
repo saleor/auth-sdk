@@ -1,8 +1,7 @@
 /* auth state when user signs in / out */
 export const STORAGE_AUTH_EVENT_KEY = "saleor_storage_auth_change";
 export const STORAGE_AUTH_STATE_KEY = "saleor_auth_module_auth_state";
-
-const REFRESH_TOKEN_KEY = "saleor_auth_module_refresh_token";
+export const REFRESH_TOKEN_KEY = "saleor_auth_module_refresh_token";
 
 export type AuthState = "signedIn" | "signedOut";
 
