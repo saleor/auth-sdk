@@ -1,6 +1,6 @@
 import { it, describe, vi, expect } from "vitest";
 import { SaleorAuthClient } from "../src/SaleorAuthClient";
-import { REFRESH_TOKEN_KEY } from "../src/SaleorAuthStorageHandler";
+import { getRefreshTokenKey } from "../src/SaleorAuthStorageHandler";
 
 describe("SaleorAuthClient", () => {
   const mockStorage = {
@@ -8,21 +8,23 @@ describe("SaleorAuthClient", () => {
     setItem: vi.fn(),
   };
   const storage = mockStorage as unknown as Storage;
+  const masterStagingUrl = "https://master.staging.saleor.cloud/graphql/";
+  const otherApiUrl = "https://some-other-domain-auth-sdk.saleor.cloud/graphql/";
 
   it(`should fetch without authentication token`, async () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
-      saleorApiUrl: "https://master.staging.saleor.cloud/graphql/",
+      saleorApiUrl: masterStagingUrl,
       storage,
       onAuthRefresh,
     });
 
-    await saleorAuthClient.fetchWithAuth("https://master.staging.saleor.cloud/graphql/", {
+    await saleorAuthClient.fetchWithAuth(masterStagingUrl, {
       method: "POST",
       body: "{}",
     });
 
-    expect(fetchMock).toHaveBeenCalledWith("https://master.staging.saleor.cloud/graphql/", {
+    expect(fetchMock).toHaveBeenCalledWith(masterStagingUrl, {
       method: "POST",
       body: "{}",
     });
@@ -31,18 +33,17 @@ describe("SaleorAuthClient", () => {
   it(`should fetch with refresh token`, async () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
-      saleorApiUrl: "https://master.staging.saleor.cloud/graphql/",
+      saleorApiUrl: masterStagingUrl,
       storage,
       onAuthRefresh,
     });
 
     const refreshToken = "aaaaaa";
     mockStorage.getItem.mockImplementation((key) => {
-      if (key === REFRESH_TOKEN_KEY) {
+      if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
     });
-    mockStorage.setItem.mockImplementation((key) => { });
 
     fetchMock.mockResponse(async (req) => {
       if (req?.body?.toString().includes("tokenRefresh")) {
@@ -58,7 +59,7 @@ describe("SaleorAuthClient", () => {
       return JSON.stringify({});
     });
 
-    await saleorAuthClient.fetchWithAuth("https://master.staging.saleor.cloud/graphql/", {
+    await saleorAuthClient.fetchWithAuth(masterStagingUrl, {
       method: "POST",
       body: "{}",
     });
@@ -73,18 +74,17 @@ describe("SaleorAuthClient", () => {
   it(`should not add auth token to external URLs`, async () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
-      saleorApiUrl: "https://master.staging.saleor.cloud/graphql/",
+      saleorApiUrl: masterStagingUrl,
       storage,
       onAuthRefresh,
     });
 
     const refreshToken = "aaaaaa";
     mockStorage.getItem.mockImplementation((key) => {
-      if (key === REFRESH_TOKEN_KEY) {
+      if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
     });
-    mockStorage.setItem.mockImplementation((key) => { });
 
     fetchMock.mockResponse(async (req) => {
       if (req?.body?.toString().includes("tokenRefresh")) {
@@ -100,18 +100,32 @@ describe("SaleorAuthClient", () => {
       return JSON.stringify({});
     });
 
-    await saleorAuthClient.fetchWithAuth(
-      "https://some-other-domain-auth-sdk.saleor.cloud/graphql/",
-      {
-        method: "POST",
-        body: "{}",
-      },
-    );
+    await saleorAuthClient.fetchWithAuth(otherApiUrl, {
+      method: "POST",
+      body: "{}",
+    });
 
     expect(onAuthRefresh).toHaveBeenCalledWith(true);
 
     expect(
       (fetchMock.mock.lastCall?.[1]?.headers as Record<string, string>)["Authorization"],
     ).toBeFalsy();
+  });
+
+  it(`should not read other domain's tokens`, async () => {
+    const onAuthRefresh = vi.fn();
+    const saleorAuthClient = new SaleorAuthClient({
+      saleorApiUrl: otherApiUrl,
+      storage,
+      onAuthRefresh,
+    });
+
+    await saleorAuthClient.fetchWithAuth(otherApiUrl, {
+      method: "POST",
+      body: "{}",
+    });
+
+    expect(mockStorage.getItem).toHaveBeenCalledWith(getRefreshTokenKey(otherApiUrl));
+    expect(mockStorage.getItem).not.toHaveBeenCalledWith(getRefreshTokenKey(masterStagingUrl));
   });
 });

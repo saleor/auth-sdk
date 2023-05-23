@@ -1,25 +1,28 @@
 /* auth state when user signs in / out */
-export const STORAGE_AUTH_EVENT_KEY = "saleor_storage_auth_change";
-export const STORAGE_AUTH_STATE_KEY = "saleor_auth_module_auth_state";
-export const REFRESH_TOKEN_KEY = "saleor_auth_module_refresh_token";
+export const getStorageAuthEventKey = (prefix?: string) =>
+  [prefix, "saleor_storage_auth_change"].filter(Boolean).join("+");
+export const getStorageAuthStateKey = (prefix?: string) =>
+  [prefix, "saleor_auth_module_auth_state"].filter(Boolean).join("+");
+export const getRefreshTokenKey = (prefix?: string) =>
+  [prefix, "saleor_auth_module_refresh_token"].filter(Boolean).join("+");
 
 export type AuthState = "signedIn" | "signedOut";
 
 export type SaleorAuthEvent = CustomEvent<{ authState: AuthState }>;
 
 export class SaleorAuthStorageHandler {
-  storage: Storage;
-
-  constructor(storage: Storage) {
-    this.storage = storage;
-
+  constructor(private storage: Storage, private prefix?: string) {
     window.addEventListener("storage", this.handleStorageChange);
   }
 
   private handleStorageChange = (event: StorageEvent) => {
     const { oldValue, newValue, type, key } = event;
 
-    if (oldValue === newValue || type !== "storage" || key !== STORAGE_AUTH_STATE_KEY) {
+    if (
+      oldValue === newValue ||
+      type !== "storage" ||
+      key !== getStorageAuthStateKey(this.prefix)
+    ) {
       return;
     }
 
@@ -32,28 +35,29 @@ export class SaleorAuthStorageHandler {
 
   /* auth state */
   sendAuthStateEvent = (authState: AuthState) => {
-    const event = new CustomEvent(STORAGE_AUTH_EVENT_KEY, { detail: { authState } });
+    const event = new CustomEvent(getStorageAuthEventKey(this.prefix), { detail: { authState } });
     window.dispatchEvent(event);
   };
 
   getAuthState = (): AuthState =>
-    (this.storage.getItem(STORAGE_AUTH_STATE_KEY) as AuthState | undefined) || "signedOut";
+    (this.storage.getItem(getStorageAuthStateKey(this.prefix)) as AuthState | undefined) ||
+    "signedOut";
 
   setAuthState = (authState: AuthState) => {
-    this.storage.setItem(STORAGE_AUTH_STATE_KEY, authState);
+    this.storage.setItem(getStorageAuthStateKey(this.prefix), authState);
     this.sendAuthStateEvent(authState);
   };
 
   /* refresh token */
-  getRefreshToken = () => this.storage.getItem(REFRESH_TOKEN_KEY) || null;
+  getRefreshToken = () => this.storage.getItem(getRefreshTokenKey(this.prefix)) || null;
 
   setRefreshToken = (token: string) => {
-    this.storage.setItem(REFRESH_TOKEN_KEY, token);
+    this.storage.setItem(getRefreshTokenKey(this.prefix), token);
   };
 
   /* performed on logout */
   clearAuthStorage = () => {
     this.setAuthState("signedOut");
-    this.storage.removeItem(REFRESH_TOKEN_KEY);
+    this.storage.removeItem(getRefreshTokenKey(this.prefix));
   };
 }
