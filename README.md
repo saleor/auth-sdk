@@ -1,4 +1,17 @@
-# Saleor Auth SDK
+<div align="center">
+<!--   <img width="150" alt="" src=""> -->
+</div>
+
+<div align="center">
+  <h1>Saleor Auth SDK</h1>
+
+  <p>Saleor Auth SDK is the seamless integration of secure and customizable authentication and authorization functionalities into Saleor-powered e-commerce applications.</p>
+</div>
+
+<div align="center">
+  <a href="https://docs.saleor.io/docs/3.x/api-usage/authentication">Docs</a> 
+  | <a href="https://www.npmjs.com/package/@saleor/auth-sdk">npm</a>
+</div>
 
 ## Authentication flow
 
