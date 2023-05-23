@@ -13,113 +13,126 @@
   | <a href="https://www.npmjs.com/package/@saleor/auth-sdk">npm</a>
 </div>
 
-## Authentication flow
+## Usage
 
-### SaleorAuthClient
+### Next.js (Pages Router) with [Apollo Client](https://www.apollographql.com/docs/react/)
 
-Most of the authentication flow is managed by a vanilla JS class `SaleorAuthClient`. You can create an instance providing a couple of props:
+<details>
+  <summary>Step-by-step video tutorial</summary>
 
-```javascript
-interface SaleorAuthClientProps {
-  saleorApiUrl: string;
-  onAuthRefresh?: (isAuthenticating: boolean) => void;
-  storage: Storage;
+Check the following [step-by-step video](https://www.youtube.com/watch?v=t6nxBk7JHCw) guide on how to set this up.
+[![Saleor Auth with Next.js](https://img.youtube.com/vi/t6nxBk7JHCw/0.jpg)](https://www.youtube.com/watch?v=t6nxBk7JHCw)
+</details>
+
+When using Next.js (Pages Router) along with [Apollo Client](https://www.apollographql.com/docs/react/), there are two essential steps to setting up your application. First, you have to surround your application's root with two providers: `<SaleorAuthProvider>` and `<ApolloProvider>`.
+
+`<SaleorAuthProvider>` comes from our React.js-auth package, located at `@saleor/auth-sdk/react`, and it needs to be set up with the output of `useSaleorAuthClient`.
+
+The `<ApolloProvider>` comes from `@apollo/client` and it needs the live GraphQL client instance, which is enhanced with the authenticated `fetch`. This `fetch` is also an output of `useSaleorAuthClient` and available as `fetchWithAuth`.
+
+Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and `onSignedIn` events.
+
+Let's look at an example:
+
+```tsx
+import { ApolloProvider } from '@apollo/client';
+
+import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from '@saleor/auth-sdk/react'
+import { useAuthenticatedApolloClient } from '@saleor/auth-sdk/react/apollo'
+
+const SaleorURL = '<your Saleor API URL>';
+
+export default function App({ Component, pageProps }: AppProps) {
+  const saleorAuth = useSaleorAuthClient({ saleorApiUrl: SaleorURL })
+
+  const { apolloClient, reset, refetch } = useAuthenticatedApolloClient({
+    url: SaleorURL,
+    fetchWithAuth: saleorAuth.saleorAuthClient.fetchWithAuth,
+  })
+
+  useAuthChange({ onSignedOut: () => reset(), onSignedIn: () => refetch() })
+
+  return (
+    <SaleorAuthProvider {...saleorAuth}>
+      <ApolloProvider client={apolloClient}>
+        // ... Your Application
+      </ApolloProvider>
+    </SaleorAuthProvider>
+  )
 }
 ```
 
-`saleorApiUrl` is required so the auth module can refresh the access token.
+Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticatin`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
 
-### How do I tell my GraphQL client to use authentication?
-
-The `SaleorAuthClient` class provides a `fetchWithAuth` method that you should pass to your GraphQL client. That will ensure that every request will be authenticated once the user signs in.
-
-```javascript
-const { authFetch } = new SaleorAuthClient(clientProps);
-
-createClient({
-  ...clientOptions,
-  fetch: authFetch,
-});
+```ts
+const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
 ```
 
-## How do I tell React that the authentication is happening?
-
-#### **`useSaleorAuthClient({ saleorApiUrl, storage, onAuthRefresh }: UseSaleorAuthClientProps) => SaleorAuthClientProps`**
-
-The authentication occurs in the React component lifecycle by setting the event listeners on the window. After the listeners are resolved, we need to make sure we removed them. For that purpose, we are providing an `useSaleorAuthClient` hook. It takes up the same props as `SaleorAuthClient` and returns the instance of `SaleorAuthClient` along with the `isAuthenticating` prop.
-
-```javascript
-const { saleorAuthClient, isAuthenticating } = useSaleorAuthClient({
-  saleorApiUrl: "https://master.staging.saleor.cloud",
-});
-```
-
-## How do I use the auth without prop drilling?
-
-#### **`SaleorAuthProvider({ saleorAuthClient, isAuthenticating, children }: PropsWithChildren<UseSaleorAuthClient>) => JSX.Element`**
-
-The hook should be used only at the root of your project. If you would like to access the client methods or the `isAuthenticating` prop down the tree without extensive prop drilling, you can use the `SaleorAuthProvider`. As the value for it, you should use the result of the `useSaleorAuthClient` hook.
-
-```jsx
-const saleorAuthClientData = useSaleorAuthClient(authClientProps)
-
-<SaleorAuthProvider {...saleorAuthClientData}>
-    {...}
-</SaleorAuthProvider>
-```
-
----
-
-#### **`useSaleorAuthContext() => SaleorAuthContextConsumerProps`**
-
-The provider also equips you with the `useSaleorAuthContext` hook:
-
-```javascript
-const { isAuthenticating, signIn, signOut, checkoutSignOut } = useSaleorAuthContext();
-```
-
-## How do I tell my graphql client to refresh queries on signIn / signOut?
-
-#### **`useAuthChange({ onSignedIn, onSignedOut }: UseAuthChangeProps) => void`**
-
-We provided a `useAuthChange` hook that listens to storage changes and triggers callbacks.
-
-```javascript
-  useAuthChange({
-    onSignedOut: () => { /* client invalidate some queries */},
-    onSignedIn: () => { /* client invalidate some queries  */}
-    },
-  });
-```
-
-## How do I sign in?
-
-#### **`SaleorAuthClient.signIn: ({ email, password }: TokenCreateVariables) => Promise<TokenCreateResponse>`**
-
-`SaleorAuthClient` returns a `signIn` method. You can also access it via the **useSaleorAuthContext** hook.
-
-```javascript
-const { signIn } = useSaleorAuthContext();
-
+```ts
 const response = await signIn({
   email: "example@mail.com",
   passowrd: "password",
 });
 ```
 
-## How do I sign out?
+### Next.js (Pages Router) with [urql](https://formidable.com/open-source/urql/)
 
-#### **`SaleorAuthClient.signOut: () => void`**
+When using Next.js (Pages Router) along with [urql](https://formidable.com/open-source/urql/) client, there are two essential steps to setting up your application. First, you have to surround your application's root with two providers: `<SaleorAuthProvider>` and `<Provider>`.
 
-This method will remove access and refresh tokens from the `SaleorAuthClient` state and storage. It will also call the sign-out event, which will trigger [`onSignOut` method of the `useAuthChange` hook](#how-do-i-tell-my-graphql-client-to-refresh-queries-on-signin--signout).
+`<SaleorAuthProvider>` comes from our React.js-auth package, located at `@saleor/auth-sdk/react`, and it needs to be set up with the output of `useSaleorAuthClient`.
 
-```javascript
-const { signOut } = useSaleorAuthContext();
+The `<Provider>` comes from `urql` and it needs the GraphQL client instance, which is enhanced with the authenticated `fetch`. This `fetch` is also an output of `useSaleorAuthClient` and available as `fetchWithAuth`.
 
-signOut();
+Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and `onSignedIn` events and is meant to refresh the GraphQL store and in-flight active GraphQL queries.
+
+Let's look at an example:
+
+
+```tsx
+import { Provider, cacheExchange, fetchExchange, ssrExchange } from "urql";
+
+import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
+import { useUrqlClient } from "@saleor/auth-sdk/react/urql";
+
+const SaleorURL = '<your Saleor API URL>';
+
+export default function App({ Component, pageProps }: AppProps) {
+  const useSaleorAuthClientProps = useSaleorAuthClient({
+    saleorApiUrl: SaleorURL 
+  });
+
+  const { urqlClient, reset, refetch } = useUrqlClient({
+    url: SaleorURL,
+    fetch: useSaleorAuthClientProps.saleorAuthClient.fetchWithAuth,
+    exchanges: [cacheExchange, fetchExchange],
+  });
+
+  useAuthChange({ onSignedOut: () => reset(), onSignedIn: () => refetch() });
+
+  return (
+    <SaleorAuthProvider {...useSaleorAuthClientProps}>
+      <Provider value={urqlClient}>
+        // ... Your Application
+      </Provider>
+    </SaleorAuthProvider>
+  )
+}
 ```
 
-⚠️ For checkout sign-out, see [signing-out in checkout](#how-do-i-sign-out-in-checkout).
+Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticatin`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
+
+```ts
+const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
+```
+
+```ts
+const response = await signIn({
+  email: "example@mail.com",
+  passowrd: "password",
+});
+```
+
+## FAQ 
 
 ## How do I sign out in checkout?
 
@@ -147,98 +160,4 @@ const response = await resetPassword({
   password: "newPassword",
   token: "apiToken",
 });
-```
-
-## How do I use this with urql?
-
-Once an authentication change happens, you might want to refetch some of your queries. Because urql doesn't provide a direct way to invalidate cache manually, we're following urql's [proposed approach](https://github.com/urql-graphql/urql/issues/297#issuecomment-501646761) of installing a new instance of the client in place of the old one. We have a hook for that called `useUrqlClient` that takes urql `ClientOptions` as the only argument and returns the current `urqlClient` and the `reset` & `refetch` functions:
-
-```javascript
-const { urqlClient, reset, refetch } = useUrqlClient({
-  url: saleorApiUrl,
-  fetch: saleorAuthClient.fetchWithAuth,
-  // other client props
-});
-```
-
-Then, you may want to pass the `reset` & `refetch` functions to the `useAuthChange` hook:
-
-```javascript
-useAuthChange({
-  onSignedOut: () => reset(),
-  onSignedIn: () => refetch(),
-});
-```
-
-### How to put it all together?
-
-```jsx
-export const App = () => {
-  const { saleorApiUrl } = getQueryParams();
-  const { locale, messages } = useLocale();
-  const saleorAuthClientProps = useSaleorAuthClient({ saleorApiUrl });
-
-  const { saleorAuthClient } = saleorAuthClientProps;
-
-  const { urqlClient, reset, refetch } = useUrqlClient({
-    suspense: true,
-    requestPolicy: "cache-first",
-    url: saleorApiUrl,
-    fetch: saleorAuthClient.fetchWithAuth,
-  });
-
-  useAuthChange({
-    onSignedOut: () => reset(),
-    onSignedIn: () => refetch(),
-  });
-
-  return (
-    <SaleorAuthProvider {...saleorAuthClientProps}>
-      <UrqlProvider value={urqlClient}>
-        <Home />
-      </UrqlProvider>
-    </SaleorAuthProvider>
-  );
-};
-```
-
-### How do I use it with Apollo?
-
-We provide support for Apollo with a hook called `useApolloClient` that authenticates fetch as its only argument and returns the current client, as well as the `reset` and the `refetch` functions:
-
-```javascript
-const { apolloClient, reset, refetch } = useApolloClient(saleorAuthClient.fetchWithAuth);
-```
-
-Once you get the client with authenticated fetch, you'll want to pass the `reset` and `refetch` functions to the `useAuthChange` hook:
-
-```javascript
-useAuthChange({
-  onSignedOut: () => reset(),
-  onSignedIn: () => refetch(),
-});
-```
-
-```jsx
-export const App = () => {
-  const { saleorApiUrl } = getQueryParams();
-  const saleorAuthClientProps = useSaleorAuthClient({ saleorApiUrl });
-
-  const { saleorAuthClient } = saleorAuthClientProps;
-
-  const { apolloClient, reset, refetch } = useApolloClient(saleorAuthClient.fetchWithAuth);
-
-  useAuthChange({
-    onSignedOut: () => reset(),
-    onSignedIn: () => refetch(),
-  });
-
-  return (
-    <SaleorAuthProvider {...saleorAuthClientProps}>
-      <ApolloProvider value={apolloClient}>
-        <Home />
-      </ApolloProvider>
-    </SaleorAuthProvider>
-  );
-};
 ```
