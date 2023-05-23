@@ -154,7 +154,7 @@ const response = await resetPassword({
 Once an authentication change happens, you might want to refetch some of your queries. Because urql doesn't provide a direct way to invalidate cache manually, we're following urql's [proposed approach](https://github.com/urql-graphql/urql/issues/297#issuecomment-501646761) of installing a new instance of the client in place of the old one. We have a hook for that called `useUrqlClient` that takes urql `ClientOptions` as the only argument and returns the current `urqlClient` and the `reset` & `refetch` functions:
 
 ```javascript
-const { urqlClient, reset, refetch} = useUrqlClient({
+const { urqlClient, reset, refetch } = useUrqlClient({
   url: saleorApiUrl,
   fetch: saleorAuthClient.fetchWithAuth,
   // other client props

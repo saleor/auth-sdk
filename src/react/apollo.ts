@@ -6,19 +6,24 @@ type Options = {
   uri: string;
   fetchWithAuth: Fetch;
   typePolicies?: Apollo.TypePolicies;
-}
+};
 
 const { ApolloClient, createHttpLink, InMemoryCache } = Apollo;
 
-export const useAuthenticatedApolloClient = ({ uri, fetchWithAuth: fetch, typePolicies }: Options) => {
+export const useAuthenticatedApolloClient = ({
+  uri,
+  fetchWithAuth: fetch,
+  typePolicies,
+}: Options) => {
   const httpLink = createHttpLink({ uri, fetch });
 
-  const apolloClient = useMemo(() =>
-    new ApolloClient({
-      link: httpLink,
-      cache: new InMemoryCache({ typePolicies }),
-    }),
-    []
+  const apolloClient = useMemo(
+    () =>
+      new ApolloClient({
+        link: httpLink,
+        cache: new InMemoryCache({ typePolicies }),
+      }),
+    [],
   );
 
   return {
