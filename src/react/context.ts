@@ -17,7 +17,7 @@ export const createSafeContext = <TValue>() => {
   }
 
   return [useSafeContext, context.Provider] as const;
-}
+};
 
 const [useSaleorAuthContext, Provider] = createSafeContext<SaleorAuthContextConsumerProps>();
 

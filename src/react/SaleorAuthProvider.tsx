@@ -10,7 +10,7 @@ export const SaleorAuthProvider = ({
 }: PropsWithChildren<UseSaleorAuthClient>) => {
   invariant(
     saleorAuthClient,
-    "Missing Saleor Auth Client - are you sure you created it using useSaleorAuthClient?"
+    "Missing Saleor Auth Client - are you sure you created it using useSaleorAuthClient?",
   );
 
   const { signIn, signOut, checkoutSignOut, resetPassword } = saleorAuthClient;

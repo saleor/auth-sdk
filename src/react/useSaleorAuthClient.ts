@@ -27,14 +27,14 @@ export const useSaleorAuthClient = ({
           onAuthRefresh?.(value);
         },
       }),
-    [storage, saleorApiUrl, onAuthRefresh]
+    [storage, saleorApiUrl, onAuthRefresh],
   );
 
   useEffect(
     () => () => {
       saleorAuthClient.cleanup();
     },
-    []
+    [],
   );
 
   return { saleorAuthClient, isAuthenticating };
