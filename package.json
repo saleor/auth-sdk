@@ -22,11 +22,25 @@
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "@apollo/client": "^3.7.14",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "urql": "^4.0.2"
+  },
+  "peerDependenciesMeta": {
+    "@apollo/client": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "urql": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@apollo/client": "^3.7.14",
