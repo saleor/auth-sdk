@@ -1,5 +1,5 @@
 <div align="center">
-<!--   <img width="150" alt="" src=""> -->
+  <img width="150" alt="" src="https://github.com/saleor/auth-sdk/assets/1338731/c90a73d0-5ef1-4d09-9347-c5d02cd7244d">
 </div>
 
 <div align="center">
