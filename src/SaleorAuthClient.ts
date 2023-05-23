@@ -1,5 +1,5 @@
 import { SaleorAuthStorageHandler } from "./SaleorAuthStorageHandler";
-import { getRequestData, isExpiredToken } from "./utils";
+import { getRequestData, getTokenIss, isExpiredToken } from "./utils";
 import {
   CustomerDetachResponse,
   CustomerDetachVariables,
@@ -56,9 +56,14 @@ export class SaleorAuthClient {
 
     const headers = init?.headers || {};
 
+    const iss = getTokenIss(this.accessToken);
+    const shouldAddAuthHeader = input.toString() === iss;
+
     return fetch(input, {
       ...init,
-      headers: { ...headers, Authorization: `Bearer ${this.accessToken}` },
+      headers: shouldAddAuthHeader
+        ? { ...headers, Authorization: `Bearer ${this.accessToken}` }
+        : headers,
     });
   };
 
@@ -89,7 +94,7 @@ export class SaleorAuthClient {
 
       this.onAuthRefresh?.(false);
 
-      if (errors.length || graphqlErrors?.length || !token) {
+      if (errors?.length || graphqlErrors?.length || !token) {
         this.tokenRefreshPromise = null;
         this.storageHandler?.clearAuthStorage();
         return fetch(input, init);
@@ -104,13 +109,13 @@ export class SaleorAuthClient {
     // this is the first failed request, initialize refresh
     this.tokenRefreshPromise = fetch(
       this.saleorApiUrl,
-      getRequestData(TOKEN_REFRESH, { refreshToken })
+      getRequestData(TOKEN_REFRESH, { refreshToken }),
     );
     return this.fetchWithAuth(input, init);
   };
 
   private handleSignIn = async <TOperation extends TokenCreateResponse | PasswordResetResponse>(
-    response: Response
+    response: Response,
   ): Promise<TOperation> => {
     const readResponse: TOperation = await response.json();
 
@@ -180,7 +185,7 @@ export class SaleorAuthClient {
     // customer detach needs auth so run it and then remove all the tokens
     const response = await this.runAuthorizedRequest(
       this.saleorApiUrl,
-      getRequestData(CHECKOUT_CUSTOMER_DETACH, variables)
+      getRequestData(CHECKOUT_CUSTOMER_DETACH, variables),
     );
 
     const readResponse: CustomerDetachResponse = await response.json();

@@ -5,14 +5,35 @@ import type { DocumentNode } from "graphql";
 const MILLI_MULTIPLYER = 1000;
 const TOKEN_GRACE_PERIOD = 2000;
 
-// returns timestamp
-const getTokenExpiry = (token: string): number => {
+type TokenData = {
+  iat: number;
+  owner: string;
+  iss: string;
+  exp: number;
+  token: string;
+  email: string;
+  type: "access" | "refresh";
+  user_id: string;
+  is_staff: boolean;
+};
+
+const decodeToken = (token: string): { exp: number; iss: string } => {
   const tokenParts = token.split(".");
   const decodedTokenData = Buffer.from(tokenParts[1] || "", "base64").toString();
   const parsedTokenData = JSON.parse(decodedTokenData);
+  return parsedTokenData;
+};
 
+// returns timestamp
+const getTokenExpiry = (token: string): number => {
+  const parsedTokenData = decodeToken(token);
   // because api returns seconds, but Date.now() works in millis
   return parsedTokenData.exp * MILLI_MULTIPLYER || 0;
+};
+
+export const getTokenIss = (token: string): string => {
+  const parsedTokenData = decodeToken(token);
+  return parsedTokenData.iss;
 };
 
 export const isExpiredToken = (token: string) => {
@@ -27,7 +48,7 @@ export const isExpiredToken = (token: string) => {
 // we're gonna do this instead
 export const getRequestData = <TVars extends object>(
   query: ReturnType<typeof gql>,
-  variables: TVars
+  variables: TVars,
 ) => ({
   method: "POST",
   headers: {
@@ -48,6 +69,3 @@ export function invariant(condition: unknown, message?: string): asserts conditi
     throw new InvariantError(`Invariant Violation: ${message || ""}`);
   }
 }
-
-
-

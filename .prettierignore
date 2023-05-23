@@ -1,0 +1,11 @@
+.next
+pnpm-lock.yaml
+graphql/schema.graphql
+*.har
+src/schemas/**/*.ts
+src/schemas/**/*.mts
+src/schemas/**/*.cts
+src/schemas/**/*.js
+src/schemas/**/*.mjs
+src/schemas/**/*.cjs
+coverage/**
