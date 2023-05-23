@@ -38,7 +38,7 @@ export class SaleorAuthClient {
    */
 
   constructor({ saleorApiUrl, storage, onAuthRefresh }: SaleorAuthClientProps) {
-    this.storageHandler = storage ? new SaleorAuthStorageHandler(storage) : null;
+    this.storageHandler = storage ? new SaleorAuthStorageHandler(storage, saleorApiUrl) : null;
     this.onAuthRefresh = onAuthRefresh;
     this.saleorApiUrl = saleorApiUrl;
   }

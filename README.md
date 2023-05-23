@@ -22,6 +22,7 @@
 
 Check the following [step-by-step video](https://www.youtube.com/watch?v=t6nxBk7JHCw) guide on how to set this up.
 [![Saleor Auth with Next.js](https://img.youtube.com/vi/t6nxBk7JHCw/0.jpg)](https://www.youtube.com/watch?v=t6nxBk7JHCw)
+
 </details>
 
 When using Next.js (Pages Router) along with [Apollo Client](https://www.apollographql.com/docs/react/), there are two essential steps to setting up your application. First, you have to surround your application's root with two providers: `<SaleorAuthProvider>` and `<ApolloProvider>`.
@@ -35,30 +36,32 @@ Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and 
 Let's look at an example:
 
 ```tsx
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from "@apollo/client";
 
-import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from '@saleor/auth-sdk/react'
-import { useAuthenticatedApolloClient } from '@saleor/auth-sdk/react/apollo'
+import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
+import { useAuthenticatedApolloClient } from "@saleor/auth-sdk/react/apollo";
 
-const SaleorURL = '<your Saleor API URL>';
+const SaleorURL = "<your Saleor API URL>";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const saleorAuth = useSaleorAuthClient({ saleorApiUrl: SaleorURL })
+  const saleorAuth = useSaleorAuthClient({ saleorApiUrl: SaleorURL });
 
   const { apolloClient, reset, refetch } = useAuthenticatedApolloClient({
     url: SaleorURL,
     fetchWithAuth: saleorAuth.saleorAuthClient.fetchWithAuth,
-  })
+  });
 
-  useAuthChange({ onSignedOut: () => reset(), onSignedIn: () => refetch() })
+  useAuthChange({
+    saleorApiUrl: SaleorURL,
+    onSignedOut: () => reset(),
+    onSignedIn: () => refetch(),
+  });
 
   return (
     <SaleorAuthProvider {...saleorAuth}>
-      <ApolloProvider client={apolloClient}>
-        // ... Your Application
-      </ApolloProvider>
+      <ApolloProvider client={apolloClient}>// ... Your Application</ApolloProvider>
     </SaleorAuthProvider>
-  )
+  );
 }
 ```
 
@@ -87,18 +90,17 @@ Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and 
 
 Let's look at an example:
 
-
 ```tsx
 import { Provider, cacheExchange, fetchExchange, ssrExchange } from "urql";
 
 import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
 import { useUrqlClient } from "@saleor/auth-sdk/react/urql";
 
-const SaleorURL = '<your Saleor API URL>';
+const SaleorURL = "<your Saleor API URL>";
 
 export default function App({ Component, pageProps }: AppProps) {
   const useSaleorAuthClientProps = useSaleorAuthClient({
-    saleorApiUrl: SaleorURL 
+    saleorApiUrl: SaleorURL,
   });
 
   const { urqlClient, reset, refetch } = useUrqlClient({
@@ -107,15 +109,17 @@ export default function App({ Component, pageProps }: AppProps) {
     exchanges: [cacheExchange, fetchExchange],
   });
 
-  useAuthChange({ onSignedOut: () => reset(), onSignedIn: () => refetch() });
+  useAuthChange({
+    saleorApiUrl: SaleorURL,
+    onSignedOut: () => reset(),
+    onSignedIn: () => refetch(),
+  });
 
   return (
     <SaleorAuthProvider {...useSaleorAuthClientProps}>
-      <Provider value={urqlClient}>
-        // ... Your Application
-      </Provider>
+      <Provider value={urqlClient}>// ... Your Application</Provider>
     </SaleorAuthProvider>
-  )
+  );
 }
 ```
 
@@ -132,7 +136,7 @@ const response = await signIn({
 });
 ```
 
-## FAQ 
+## FAQ
 
 ## How do I sign out in checkout?
 
