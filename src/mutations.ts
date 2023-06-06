@@ -1,3 +1,4 @@
+import { DocumentNode } from "graphql";
 import gql from "graphql-tag";
 
 export const accountErrorFragment = gql`
@@ -55,6 +56,37 @@ export const PASSWORD_RESET = gql`
         message
         field
         code
+      }
+    }
+  }
+`;
+
+export const ExternalAuthenticationURL = gql`
+  mutation externalAuthenticationUrl($pluginId: String!, $input: JSONString!) {
+    externalAuthenticationUrl(pluginId: $pluginId, input: $input) {
+      authenticationData
+      errors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const ExternalObtainAccessTokens = gql`
+  mutation AuthObtainAccessToken($pluginId: String!, $input: JSONString!) {
+    externalObtainAccessTokens(pluginId: $pluginId, input: $input) {
+      token
+      refreshToken
+      user {
+        id
+        email
+      }
+      errors {
+        field
+        code
+        message
       }
     }
   }
