@@ -56,3 +56,8 @@ export interface CustomerDetachResponse {
     };
   };
 }
+
+export enum ExternalProvider {
+  OpenIDConnect = "mirumee.authentication.openidconnect",
+  SaleorCloud = "cloud_auth.CloudAuthorizationPlugin",
+}

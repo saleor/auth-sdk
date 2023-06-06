@@ -12,6 +12,7 @@ import {
 } from "./types";
 import { invariant } from "./utils";
 import { CHECKOUT_CUSTOMER_DETACH, PASSWORD_RESET, TOKEN_CREATE, TOKEN_REFRESH } from "./mutations";
+import cookie from "cookie";
 
 export interface SaleorAuthClientProps {
   onAuthRefresh?: (isAuthenticating: boolean) => void;
@@ -150,6 +151,11 @@ export class SaleorAuthClient {
   fetchWithAuth: Fetch = async (input, init) => {
     const refreshToken = this.storageHandler?.getRefreshToken();
 
+    if (!this.accessToken) {
+      this.accessToken = cookie.parse(document.cookie).token;
+      document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
+    }
+
     // access token is fine, add it to the request and proceed
     if (this.accessToken && !isExpiredToken(this.accessToken)) {
       return this.runAuthorizedRequest(input, init);
@@ -179,6 +185,7 @@ export class SaleorAuthClient {
   signOut = () => {
     this.accessToken = null;
     this.storageHandler?.clearAuthStorage();
+    document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
   };
 
   checkoutSignOut = async (variables: CustomerDetachVariables) => {
