@@ -141,56 +141,68 @@ const response = await signIn({
 Setup `_app.tsx` as described above. In your login component trigger the external auth flow using the following code:
 
 ```tsx
-import { Inter } from 'next/font/google'
-
-import { useSaleorAuthContext, useSaleorExternalAuth } from '@saleor/auth-sdk/react'
-import { ExternalProvider } from '@saleor/auth-sdk';
-import Link from 'next/link';
-import { gql, useQuery } from '@apollo/client';
-
-const inter = Inter({ subsets: ['latin'] })
+import { useSaleorAuthContext, useSaleorExternalAuth } from "@saleor/auth-sdk/react";
+import { ExternalProvider } from "@saleor/auth-sdk";
+import Link from "next/link";
+import { gql, useQuery } from "@apollo/client";
 
 export default function Home() {
-  const { loading: isLoading, error, data } = useQuery(gql`query CurrentUser { me { id email firstName lastName } }`);
-
-  const { authURL, loading } = useSaleorExternalAuth({
-    saleorURL: '<your Saleor instance>',
+  const {
+    loading: isLoadingCurrentUser,
+    error,
+    data,
+  } = useQuery(
+    gql`
+      query CurrentUser {
+        me {
+          id
+          email
+          firstName
+          lastName
+        }
+      }
+    `,
+  );
+  const { authURL, loading: isLoadingExternalAuth } = useSaleorExternalAuth({
+    saleorURL: "<your Saleor instance>",
     provider: ExternalProvider.OpenIDConnect,
-    redirectURL: 'http://localhost:5375/api/auth/callback',
+    redirectURL: "<your Next.js app>/api/auth/callback",
   });
 
   const { signOut } = useSaleorAuthContext();
 
-  if (loading || isLoading) {
+  if (isLoadingExternalAuth || isLoadingCurrentUser) {
     return <div>Loading...</div>;
-  } else if (data && data.me) {
+  }
+  if (data?.me) {
     return (
       <div>
         {JSON.stringify(data)}
         <button onClick={() => signOut()}>Logout</button>
       </div>
-    )
-  } else if (authURL) {
-      return (
-      <div>
-        <Link href={authURL}>Login</Link> 
-      </div>
-      )
-  } else {
-    return (
-      <div>Something went wrong</div>
-    )
+    );
   }
+  if (authURL) {
+    return (
+      <div>
+        <Link href={authURL}>Login</Link>
+      </div>
+    );
+  }
+  return <div>Something went wrong</div>;
 }
 ```
 
 You also need to define the auth callback. In `pages/api/auth` create the `callback.ts` with the following content:
 
 ```ts
-import { ExternalProvider, SaleorExternalAuth } from '@saleor/auth-sdk';
-import { createSaleorExternalAuthHandler } from '@saleor/auth-sdk/next'
+import { ExternalProvider, SaleorExternalAuth } from "@saleor/auth-sdk";
+import { createSaleorExternalAuthHandler } from "@saleor/auth-sdk/next";
 
-const externalAuth = new SaleorExternalAuth('<your Saleor instance URL>', ExternalProvider.OpenIDConnect)
+const externalAuth = new SaleorExternalAuth(
+  "<your Saleor instance URL>",
+  ExternalProvider.OpenIDConnect,
+);
 
 export default createSaleorExternalAuthHandler(externalAuth);
 ```
