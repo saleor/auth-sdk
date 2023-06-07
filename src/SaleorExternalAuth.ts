@@ -20,7 +20,7 @@ export type ExternalObtainAccessTokenResponse =
   | { errors: any[] };
 
 export class SaleorExternalAuth {
-  constructor(private saleorURL: string, private provider: ExternalProvider) { }
+  constructor(private saleorURL: string, private provider: ExternalProvider) {}
 
   async makePOSTRequest(query: ReturnType<typeof gql>, variables: object) {
     const response = await fetch(this.saleorURL, getRequestData(query, variables));
