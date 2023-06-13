@@ -36,6 +36,7 @@ Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and 
 Let's look at an example:
 
 ```tsx
+import { AppProps } from "next/app";
 import { ApolloProvider } from "@apollo/client";
 
 import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
@@ -47,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const saleorAuth = useSaleorAuthClient({ saleorApiUrl: SaleorURL });
 
   const { apolloClient, reset, refetch } = useAuthenticatedApolloClient({
-    url: SaleorURL,
+    uri: SaleorURL,
     fetchWithAuth: saleorAuth.saleorAuthClient.fetchWithAuth,
   });
 
@@ -59,7 +60,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <SaleorAuthProvider {...saleorAuth}>
-      <ApolloProvider client={apolloClient}>// ... Your Application</ApolloProvider>
+      <ApolloProvider client={apolloClient}>
+        <Component {...pageProps} />
+      </ApolloProvider>
     </SaleorAuthProvider>
   );
 }
@@ -91,6 +94,7 @@ Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and 
 Let's look at an example:
 
 ```tsx
+import { AppProps } from "next/app";
 import { Provider, cacheExchange, fetchExchange, ssrExchange } from "urql";
 
 import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
