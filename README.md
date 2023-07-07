@@ -87,7 +87,7 @@ export const LoginPage = () => {
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const result = await signIn({ email: "example@mail.com", passowrd: "password" });
+    const result = await signIn({ email: "example@mail.com", password: "password" });
 
     if (result.data.tokenCreate.errors) {
       // handle errors
@@ -194,7 +194,7 @@ export const LoginPage = () => {
 
     const result = await signIn({
       email: "example@mail.com",
-      passowrd: "password",
+      password: "password",
     });
 
     if (result.data.tokenCreate.errors) {
