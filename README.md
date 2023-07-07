@@ -70,15 +70,58 @@ export default function App({ Component, pageProps }: AppProps) {
 
 Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticatin`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
 
-```ts
-const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
-```
+```tsx
+import React, { FormEvent } from "react";
+import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
+import { useQuery } from "@apollo/client";
+import { CurrentUserDocument } from "../generated/graphql";
 
-```ts
-const response = await signIn({
-  email: "example@mail.com",
-  passowrd: "password",
-});
+export const LoginPage = () => {
+  const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
+
+  const [{ data: currentUser, loading: isLoadingCurrentUser }] = useQuery(CurrentUserDocument);
+
+  // important: wait for both the end of auth process and the end of query invocation
+  const isLoading = isAuthenticating || isLoadingCurrentUser;
+
+  const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = await signIn({ email: "example@mail.com", passowrd: "password" });
+
+    if (result.data.tokenCreate.errors) {
+      // handle errors
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <section>
+      {currentUser?.me ? (
+        <>
+          <div>Display user {JSON.stringify(currentUser)}</div>
+          <button className="button" onClick={() => signOut()}>
+            Log Out
+          </button>
+        </>
+      ) : (
+        <div>
+          <form onSubmit={submitHandler}>
+            {/* You must connect your inputs to state or use a form library such as react-hook-form */}
+            <input type="email" name="email" placeholder="Email" />
+            <input type="password" name="password" placeholder="Password" />
+            <button className="button" type="submit">
+              Log In
+            </button>
+          </form>
+        </div>
+      )}
+    </section>
+  );
+};
 ```
 
 ### Next.js (Pages Router) with [urql](https://formidable.com/open-source/urql/)
@@ -127,17 +170,66 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
-Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticatin`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
+Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticating`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
 
-```ts
-const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
-```
+```tsx
+import React, { FormEvent } from "react";
+import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
+import { useQuery } from "urql";
+import { CurrentUserDocument } from "../generated/graphql";
 
-```ts
-const response = await signIn({
-  email: "example@mail.com",
-  passowrd: "password",
-});
+export const LoginPage = () => {
+  const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
+
+  const [{ data: currentUser, fetching: isLoadingCurrentUser }] = useQuery({
+    query: CurrentUserDocument,
+    pause: isAuthenticating,
+  });
+
+  // important: wait for both the end of auth process and the end of query invocation
+  const isLoading = isAuthenticating || isLoadingCurrentUser;
+
+  const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = await signIn({
+      email: "example@mail.com",
+      passowrd: "password",
+    });
+
+    if (result.data.tokenCreate.errors) {
+      // handle errors
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <section>
+      {currentUser?.me ? (
+        <>
+          <div>Display user {JSON.stringify(currentUser)}</div>
+          <button className="button" onClick={() => signOut()}>
+            Log Out
+          </button>
+        </>
+      ) : (
+        <div>
+          <form onSubmit={submitHandler}>
+            {/* You must connect your inputs to state or use a form library such as react-hook-form */}
+            <input type="email" name="email" placeholder="Email" />
+            <input type="password" name="password" placeholder="Password" />
+            <button className="button" type="submit">
+              Log In
+            </button>
+          </form>
+        </div>
+      )}
+    </section>
+  );
+};
 ```
 
 ### Next.js (Pages Router) with OpenID Connect
@@ -178,6 +270,7 @@ export default function Home() {
   if (isLoadingExternalAuth || isLoadingCurrentUser) {
     return <div>Loading...</div>;
   }
+
   if (data?.me) {
     return (
       <div>
