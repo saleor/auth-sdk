@@ -68,7 +68,7 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
-Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticatin`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
+Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticating`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
 
 ```tsx
 import React, { FormEvent } from "react";
