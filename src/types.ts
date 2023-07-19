@@ -45,18 +45,6 @@ export interface PasswordResetResponse {
   };
 }
 
-export interface CustomerDetachVariables {
-  checkoutId: string;
-}
-
-export interface CustomerDetachResponse {
-  data: {
-    checkoutCustomerDetach: {
-      errors: any[];
-    };
-  };
-}
-
 export enum ExternalProvider {
   OpenIDConnect = "mirumee.authentication.openidconnect",
   SaleorCloud = "cloud_auth.CloudAuthorizationPlugin",

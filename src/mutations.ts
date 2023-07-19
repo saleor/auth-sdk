@@ -1,4 +1,3 @@
-import { DocumentNode } from "graphql";
 import gql from "graphql-tag";
 
 export const accountErrorFragment = gql`
@@ -16,18 +15,6 @@ export const TOKEN_REFRESH = gql`
       token
       errors {
         ...AccountErrorFragment
-      }
-    }
-  }
-`;
-
-export const CHECKOUT_CUSTOMER_DETACH = gql`
-  mutation checkoutCustomerDetach($checkoutId: ID!) {
-    checkoutCustomerDetach(id: $checkoutId) {
-      errors {
-        message
-        field
-        code
       }
     }
   }

@@ -13,10 +13,10 @@ export const SaleorAuthProvider = ({
     "Missing Saleor Auth Client - are you sure you created it using useSaleorAuthClient?",
   );
 
-  const { signIn, signOut, checkoutSignOut, resetPassword } = saleorAuthClient;
+  const { signIn, signOut, resetPassword } = saleorAuthClient;
 
   return (
-    <Provider value={{ isAuthenticating, signIn, signOut, checkoutSignOut, resetPassword }}>
+    <Provider value={{ isAuthenticating, signIn, signOut, resetPassword }}>
       {children}
     </Provider>
   );
