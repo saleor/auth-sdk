@@ -1,4 +1,6 @@
 import gql from "graphql-tag";
+import { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { ExternalAuthenticationURLResponse, ExternalAuthenticationURLVariables, ExternalObtainAccessTokenResponse, ExternalObtainAccessTokenVariables, PasswordResetResponse, PasswordResetVariables, TokenCreateResponse, TokenCreateVariables, TokenRefreshResponse, TokenRefreshVariables } from "./types";
 
 export const accountErrorFragment = gql`
   fragment AccountErrorFragment on AccountError {
@@ -6,7 +8,7 @@ export const accountErrorFragment = gql`
     field
     message
   }
-`;
+` as TypedDocumentNode;
 
 export const TOKEN_REFRESH = gql`
   ${accountErrorFragment}
@@ -18,7 +20,7 @@ export const TOKEN_REFRESH = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<TokenRefreshResponse, TokenRefreshVariables>;
 
 export const TOKEN_CREATE = gql`
   mutation tokenCreate($email: String!, $password: String!) {
@@ -32,7 +34,7 @@ export const TOKEN_CREATE = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<TokenCreateResponse, TokenCreateVariables>;
 
 export const PASSWORD_RESET = gql`
   mutation passwordReset($email: String!, $password: String!, $token: String!) {
@@ -46,7 +48,7 @@ export const PASSWORD_RESET = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<PasswordResetResponse, PasswordResetVariables>;
 
 export const ExternalAuthenticationURL = gql`
   mutation externalAuthenticationUrl($pluginId: String!, $input: JSONString!) {
@@ -59,7 +61,7 @@ export const ExternalAuthenticationURL = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<ExternalAuthenticationURLResponse, ExternalAuthenticationURLVariables>;
 
 export const ExternalObtainAccessTokens = gql`
   mutation AuthObtainAccessToken($pluginId: String!, $input: JSONString!) {
@@ -77,4 +79,4 @@ export const ExternalObtainAccessTokens = gql`
       }
     }
   }
-`;
+` as TypedDocumentNode<ExternalObtainAccessTokenResponse, ExternalObtainAccessTokenVariables>;

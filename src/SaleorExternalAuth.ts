@@ -1,36 +1,29 @@
-import gql from "graphql-tag";
 import { ExternalAuthenticationURL, ExternalObtainAccessTokens } from "./mutations";
 import { ExternalProvider } from "./types";
 import { getRequestData } from "./utils";
+import { TypedDocumentNode } from "urql";
 
-type RedirectData = {
+interface RedirectData {
   code: string;
   state: string;
-};
+}
 
-export type ExternalObtainAccessToken = {
-  token: string;
-  refreshToken: string;
-  csrfToken: string;
-  user: unknown;
-};
-
-export type ExternalObtainAccessTokenResponse = { data: ExternalObtainAccessToken } | { errors: any[] };
+type GraphQLResponse<TResult> = { data: TResult } | { errors: { message: string }[] }
 
 export class SaleorExternalAuth {
   constructor(
     private saleorURL: string,
     private provider: ExternalProvider,
-  ) {}
+  ) { }
 
-  async makePOSTRequest(query: ReturnType<typeof gql>, variables: object) {
+  async makePOSTRequest<TResult, TVariables>(query: TypedDocumentNode<TResult, TVariables>, variables: TVariables) {
     const response = await fetch(this.saleorURL, getRequestData(query, variables));
 
-    const result = await response.json();
+    const result = await response.json() as GraphQLResponse<TResult>;
 
     if ("errors" in result) {
       console.error(result.errors[0].message);
-      return null;
+      throw new Error(result.errors[0].message);
     }
 
     return result.data;
@@ -48,7 +41,7 @@ export class SaleorExternalAuth {
       throw new Error(errors[0].message);
     }
 
-    const { authorizationUrl } = JSON.parse(data);
+    const { authorizationUrl } = JSON.parse(data) as { authorizationUrl: string };
 
     return authorizationUrl;
   }
