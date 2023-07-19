@@ -1,8 +1,6 @@
 import { SaleorAuthStorageHandler } from "./SaleorAuthStorageHandler";
 import { getRequestData, getTokenIss, isExpiredToken } from "./utils";
 import {
-  CustomerDetachResponse,
-  CustomerDetachVariables,
   Fetch,
   PasswordResetResponse,
   PasswordResetVariables,
@@ -11,7 +9,7 @@ import {
   TokenRefreshResponse,
 } from "./types";
 import { invariant } from "./utils";
-import { CHECKOUT_CUSTOMER_DETACH, PASSWORD_RESET, TOKEN_CREATE, TOKEN_REFRESH } from "./mutations";
+import { PASSWORD_RESET, TOKEN_CREATE, TOKEN_REFRESH } from "./mutations";
 import cookie from "cookie";
 
 export interface SaleorAuthClientProps {
@@ -186,27 +184,5 @@ export class SaleorAuthClient {
     this.accessToken = null;
     this.storageHandler?.clearAuthStorage();
     document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
-  };
-
-  checkoutSignOut = async (variables: CustomerDetachVariables) => {
-    // customer detach needs auth so run it and then remove all the tokens
-    const response = await this.runAuthorizedRequest(
-      this.saleorApiUrl,
-      getRequestData(CHECKOUT_CUSTOMER_DETACH, variables),
-    );
-
-    const readResponse: CustomerDetachResponse = await response.json();
-
-    const {
-      data: {
-        checkoutCustomerDetach: { errors },
-      },
-    } = readResponse;
-
-    if (!errors?.length) {
-      this.signOut();
-    }
-
-    return readResponse;
   };
 }
