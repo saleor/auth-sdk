@@ -1,6 +1,17 @@
 import gql from "graphql-tag";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
-import { ExternalAuthenticationURLResponse, ExternalAuthenticationURLVariables, ExternalObtainAccessTokenResponse, ExternalObtainAccessTokenVariables, PasswordResetResponse, PasswordResetVariables, TokenCreateResponse, TokenCreateVariables, TokenRefreshResponse, TokenRefreshVariables } from "./types";
+import {
+  ExternalAuthenticationURLResponse,
+  ExternalAuthenticationURLVariables,
+  ExternalObtainAccessTokenResponse,
+  ExternalObtainAccessTokenVariables,
+  PasswordResetResponse,
+  PasswordResetVariables,
+  TokenCreateResponse,
+  TokenCreateVariables,
+  TokenRefreshResponse,
+  TokenRefreshVariables,
+} from "./types";
 
 export const accountErrorFragment = gql`
   fragment AccountErrorFragment on AccountError {

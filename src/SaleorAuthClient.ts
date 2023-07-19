@@ -57,13 +57,13 @@ export class SaleorAuthClient {
 
     const getURL = (input: RequestInfo | URL) => {
       if (typeof input === "string") {
-        return input
+        return input;
       } else if (input instanceof URL) {
-        return input.href
+        return input.href;
       } else {
         return input.url;
       }
-    }
+    };
 
     const iss = getTokenIss(this.accessToken);
     const shouldAddAuthHeader = getURL(input) === iss;
@@ -90,7 +90,7 @@ export class SaleorAuthClient {
     if (this.tokenRefreshPromise) {
       const response = await this.tokenRefreshPromise;
 
-      const res = await response.clone().json() as TokenRefreshResponse;
+      const res = (await response.clone().json()) as TokenRefreshResponse;
 
       const {
         errors: graphqlErrors,
@@ -121,7 +121,7 @@ export class SaleorAuthClient {
   private handleSignIn = async <TOperation extends TokenCreateResponse | PasswordResetResponse>(
     response: Response,
   ): Promise<TOperation> => {
-    const readResponse = await response.json() as TOperation;
+    const readResponse = (await response.json()) as TOperation;
 
     const responseData =
       "tokenCreate" in readResponse.data ? readResponse.data.tokenCreate : readResponse.data.setPassword;

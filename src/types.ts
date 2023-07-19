@@ -6,7 +6,7 @@ export interface TokenCreateVariables {
 }
 
 interface GraphQLError {
-  message: string
+  message: string;
 }
 
 export interface TokenCreateResponse {
@@ -52,8 +52,8 @@ export interface PasswordResetResponse {
 export interface ExternalAuthenticationURLResponse {
   externalAuthenticationUrl: {
     authenticationData: string;
-    errors: GraphQLError[]
-  }
+    errors: GraphQLError[];
+  };
 }
 
 export interface ExternalAuthenticationURLVariables {
@@ -69,7 +69,7 @@ export interface ExternalObtainAccessToken {
 }
 
 export interface ExternalObtainAccessTokenResponse {
-  externalObtainAccessTokens: ExternalObtainAccessToken
+  externalObtainAccessTokens: ExternalObtainAccessToken;
 }
 
 export interface ExternalObtainAccessTokenVariables {

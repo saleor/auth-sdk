@@ -8,18 +8,21 @@ interface RedirectData {
   state: string;
 }
 
-type GraphQLResponse<TResult> = { data: TResult } | { errors: { message: string }[] }
+type GraphQLResponse<TResult> = { data: TResult } | { errors: { message: string }[] };
 
 export class SaleorExternalAuth {
   constructor(
     private saleorURL: string,
     private provider: ExternalProvider,
-  ) { }
+  ) {}
 
-  async makePOSTRequest<TResult, TVariables>(query: TypedDocumentNode<TResult, TVariables>, variables: TVariables) {
+  async makePOSTRequest<TResult, TVariables>(
+    query: TypedDocumentNode<TResult, TVariables>,
+    variables: TVariables,
+  ) {
     const response = await fetch(this.saleorURL, getRequestData(query, variables));
 
-    const result = await response.json() as GraphQLResponse<TResult>;
+    const result = (await response.json()) as GraphQLResponse<TResult>;
 
     if ("errors" in result) {
       console.error(result.errors[0].message);
