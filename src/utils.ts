@@ -1,11 +1,11 @@
 import { print } from "graphql/language/printer.js";
-import gql from "graphql-tag";
 import type { DocumentNode } from "graphql";
+import { TypedDocumentNode } from "urql";
 
 const MILLI_MULTIPLYER = 1000;
 const TOKEN_GRACE_PERIOD = 2000;
 
-type TokenData = {
+interface TokenData {
   iat: number;
   owner: string;
   iss: string;
@@ -15,12 +15,12 @@ type TokenData = {
   type: "access" | "refresh";
   user_id: string;
   is_staff: boolean;
-};
+}
 
 const decodeToken = (token: string): { exp: number; iss: string } => {
   const tokenParts = token.split(".");
   const decodedTokenData = Buffer.from(tokenParts[1] || "", "base64").toString();
-  const parsedTokenData = JSON.parse(decodedTokenData);
+  const parsedTokenData = JSON.parse(decodedTokenData) as TokenData;
   return parsedTokenData;
 };
 
@@ -46,9 +46,9 @@ export const isExpiredToken = (token: string) => {
 // a different version of graphql and pnpm overrides not working
 // https://github.com/pnpm/pnpm/issues/4097
 // we're gonna do this instead
-export const getRequestData = <TVars extends object>(
-  query: ReturnType<typeof gql>,
-  variables: TVars,
+export const getRequestData = <TResult, TVariables>(
+  query: TypedDocumentNode<TResult, TVariables>,
+  variables: TVariables,
 ) => ({
   method: "POST",
   headers: {

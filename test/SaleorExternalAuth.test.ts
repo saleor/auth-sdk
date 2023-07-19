@@ -13,10 +13,7 @@ describe("SaleorExternalAuth", () => {
 
     fetchMock.mockResponseOnce(JSON.stringify({ data: mockData }));
 
-    const auth = new SaleorExternalAuth(
-      "https://saleor.cloud.instance",
-      ExternalProvider.OpenIDConnect,
-    );
+    const auth = new SaleorExternalAuth("https://saleor.cloud.instance", ExternalProvider.OpenIDConnect);
     const url = await auth.initiate({ redirectURL: "https://saleor.callback" });
 
     expect(url).toBe("https://saleor.auth");
@@ -35,10 +32,7 @@ describe("SaleorExternalAuth", () => {
 
     fetchMock.mockResponseOnce(JSON.stringify({ data: mockData }));
 
-    const auth = new SaleorExternalAuth(
-      "https://saleor.cloud.instance",
-      ExternalProvider.OpenIDConnect,
-    );
+    const auth = new SaleorExternalAuth("https://saleor.cloud.instance", ExternalProvider.OpenIDConnect);
     const data = await auth.obtainAccessToken({ code: "1234", state: "state" });
 
     expect(data).toEqual(mockData.externalObtainAccessTokens);

@@ -11,18 +11,17 @@ export type AuthState = "signedIn" | "signedOut";
 export type SaleorAuthEvent = CustomEvent<{ authState: AuthState }>;
 
 export class SaleorAuthStorageHandler {
-  constructor(private storage: Storage, private prefix?: string) {
+  constructor(
+    private storage: Storage,
+    private prefix?: string,
+  ) {
     window.addEventListener("storage", this.handleStorageChange);
   }
 
   private handleStorageChange = (event: StorageEvent) => {
     const { oldValue, newValue, type, key } = event;
 
-    if (
-      oldValue === newValue ||
-      type !== "storage" ||
-      key !== getStorageAuthStateKey(this.prefix)
-    ) {
+    if (oldValue === newValue || type !== "storage" || key !== getStorageAuthStateKey(this.prefix)) {
       return;
     }
 
@@ -40,8 +39,7 @@ export class SaleorAuthStorageHandler {
   };
 
   getAuthState = (): AuthState =>
-    (this.storage.getItem(getStorageAuthStateKey(this.prefix)) as AuthState | undefined) ||
-    "signedOut";
+    (this.storage.getItem(getStorageAuthStateKey(this.prefix)) as AuthState | undefined) || "signedOut";
 
   setAuthState = (authState: AuthState) => {
     this.storage.setItem(getStorageAuthStateKey(this.prefix), authState);

@@ -5,12 +5,16 @@ export interface TokenCreateVariables {
   password: string;
 }
 
+interface GraphQLError {
+  message: string;
+}
+
 export interface TokenCreateResponse {
   data: {
     tokenCreate: {
       token: string | undefined;
       refreshToken: string | undefined;
-      errors: any[];
+      errors: GraphQLError[];
     };
   };
 }
@@ -20,11 +24,11 @@ export interface TokenRefreshVariables {
 }
 
 export interface TokenRefreshResponse {
-  errors?: any[];
+  errors?: unknown[];
   data: {
     tokenRefresh: {
       token: string | undefined;
-      errors?: any[];
+      errors?: GraphQLError[];
     };
   };
 }
@@ -40,21 +44,37 @@ export interface PasswordResetResponse {
     setPassword: {
       token: string | undefined;
       refreshToken: string | undefined;
-      errors: any[];
+      errors: GraphQLError[];
     };
   };
 }
 
-export interface CustomerDetachVariables {
-  checkoutId: string;
+export interface ExternalAuthenticationURLResponse {
+  externalAuthenticationUrl: {
+    authenticationData: string;
+    errors: GraphQLError[];
+  };
 }
 
-export interface CustomerDetachResponse {
-  data: {
-    checkoutCustomerDetach: {
-      errors: any[];
-    };
-  };
+export interface ExternalAuthenticationURLVariables {
+  pluginId: string;
+  input: string;
+}
+
+export interface ExternalObtainAccessToken {
+  token: string;
+  refreshToken: string;
+  csrfToken: string;
+  user: unknown;
+}
+
+export interface ExternalObtainAccessTokenResponse {
+  externalObtainAccessTokens: ExternalObtainAccessToken;
+}
+
+export interface ExternalObtainAccessTokenVariables {
+  pluginId: string;
+  input: string;
 }
 
 export enum ExternalProvider {

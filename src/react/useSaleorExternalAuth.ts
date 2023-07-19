@@ -38,7 +38,7 @@ export const useSaleorExternalAuth = ({
       }
     };
 
-    triggerExternalAuth();
+    void triggerExternalAuth();
   }, [saleorURL]);
 
   return state;

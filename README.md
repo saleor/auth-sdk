@@ -247,18 +247,16 @@ export default function Home() {
     loading: isLoadingCurrentUser,
     error,
     data,
-  } = useQuery(
-    gql`
-      query CurrentUser {
-        me {
-          id
-          email
-          firstName
-          lastName
-        }
+  } = useQuery(gql`
+    query CurrentUser {
+      me {
+        id
+        email
+        firstName
+        lastName
       }
-    `,
-  );
+    }
+  `);
   const { authURL, loading: isLoadingExternalAuth } = useSaleorExternalAuth({
     saleorURL: "<your Saleor instance>",
     provider: ExternalProvider.OpenIDConnect,
@@ -296,25 +294,12 @@ You also need to define the auth callback. In `pages/api/auth` create the `callb
 import { ExternalProvider, SaleorExternalAuth } from "@saleor/auth-sdk";
 import { createSaleorExternalAuthHandler } from "@saleor/auth-sdk/next";
 
-const externalAuth = new SaleorExternalAuth(
-  "<your Saleor instance URL>",
-  ExternalProvider.OpenIDConnect,
-);
+const externalAuth = new SaleorExternalAuth("<your Saleor instance URL>", ExternalProvider.OpenIDConnect);
 
 export default createSaleorExternalAuthHandler(externalAuth);
 ```
 
 ## FAQ
-
-## How do I sign out in checkout?
-
-When dealing with authentication in the checkout, we need to start the signing-out process by detaching the customer from checkout. Since it requires the user to be signed in, it must be executed first. If the mutation succeeds, the tokens from the state/storage will be removed.
-
-```javascript
-const { checkoutSignOut } = useSaleorAuthContext();
-
-const response = await checkoutSignOut({ checkoutId: checkout.id });
-```
 
 ## How do I reset password?
 

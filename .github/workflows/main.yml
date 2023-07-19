@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: pnpm --version && pnpm install --frozen-lockfile
 
-      - name: Check prettier
-        run: pnpm prettier --check .
+      - name: Lint
+        run: pnpm lint:ci
 
       - name: Test
         run: CI=true pnpm test
