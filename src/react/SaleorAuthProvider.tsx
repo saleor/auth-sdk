@@ -15,9 +15,5 @@ export const SaleorAuthProvider = ({
 
   const { signIn, signOut, resetPassword } = saleorAuthClient;
 
-  return (
-    <Provider value={{ isAuthenticating, signIn, signOut, resetPassword }}>
-      {children}
-    </Provider>
-  );
+  return <Provider value={{ isAuthenticating, signIn, signOut, resetPassword }}>{children}</Provider>;
 };

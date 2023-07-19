@@ -10,11 +10,7 @@ type Options = {
 
 const { ApolloClient, createHttpLink, InMemoryCache } = Apollo;
 
-export const useAuthenticatedApolloClient = ({
-  uri,
-  fetchWithAuth: fetch,
-  typePolicies,
-}: Options) => {
+export const useAuthenticatedApolloClient = ({ uri, fetchWithAuth: fetch, typePolicies }: Options) => {
   const httpLink = createHttpLink({ uri, fetch });
 
   const apolloClient = useMemo(

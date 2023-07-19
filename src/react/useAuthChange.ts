@@ -32,16 +32,10 @@ export const useAuthChange = ({ saleorApiUrl, onSignedOut, onSignedIn }: UseAuth
     }
 
     // for current window
-    window.addEventListener(
-      getStorageAuthEventKey(saleorApiUrl),
-      handleAuthChange as EventListener,
-    );
+    window.addEventListener(getStorageAuthEventKey(saleorApiUrl), handleAuthChange as EventListener);
 
     return () => {
-      window.removeEventListener(
-        getStorageAuthEventKey(saleorApiUrl),
-        handleAuthChange as EventListener,
-      );
+      window.removeEventListener(getStorageAuthEventKey(saleorApiUrl), handleAuthChange as EventListener);
     };
   }, []);
 };

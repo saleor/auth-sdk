@@ -66,9 +66,7 @@ describe("SaleorAuthClient", () => {
 
     expect(onAuthRefresh).toHaveBeenCalledWith(true);
 
-    expect(
-      (fetchMock.mock.lastCall?.[1]?.headers as Record<string, string>)["Authorization"],
-    ).toBeTruthy();
+    expect((fetchMock.mock.lastCall?.[1]?.headers as Record<string, string>)["Authorization"]).toBeTruthy();
   });
 
   it(`should not add auth token to external URLs`, async () => {
@@ -107,9 +105,7 @@ describe("SaleorAuthClient", () => {
 
     expect(onAuthRefresh).toHaveBeenCalledWith(true);
 
-    expect(
-      (fetchMock.mock.lastCall?.[1]?.headers as Record<string, string>)["Authorization"],
-    ).toBeFalsy();
+    expect((fetchMock.mock.lastCall?.[1]?.headers as Record<string, string>)["Authorization"]).toBeFalsy();
   });
 
   it(`should not read other domain's tokens`, async () => {

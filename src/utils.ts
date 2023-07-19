@@ -46,10 +46,7 @@ export const isExpiredToken = (token: string) => {
 // a different version of graphql and pnpm overrides not working
 // https://github.com/pnpm/pnpm/issues/4097
 // we're gonna do this instead
-export const getRequestData = <TVars extends object>(
-  query: ReturnType<typeof gql>,
-  variables: TVars,
-) => ({
+export const getRequestData = <TVars extends object>(query: ReturnType<typeof gql>, variables: TVars) => ({
   method: "POST",
   headers: {
     "Content-Type": "application/json",

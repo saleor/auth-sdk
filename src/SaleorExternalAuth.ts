@@ -15,12 +15,13 @@ export type ExternalObtainAccessToken = {
   user: unknown;
 };
 
-export type ExternalObtainAccessTokenResponse =
-  | { data: ExternalObtainAccessToken }
-  | { errors: any[] };
+export type ExternalObtainAccessTokenResponse = { data: ExternalObtainAccessToken } | { errors: any[] };
 
 export class SaleorExternalAuth {
-  constructor(private saleorURL: string, private provider: ExternalProvider) {}
+  constructor(
+    private saleorURL: string,
+    private provider: ExternalProvider,
+  ) {}
 
   async makePOSTRequest(query: ReturnType<typeof gql>, variables: object) {
     const response = await fetch(this.saleorURL, getRequestData(query, variables));
@@ -53,13 +54,10 @@ export class SaleorExternalAuth {
   }
 
   async obtainAccessToken({ code, state }: RedirectData) {
-    const { externalObtainAccessTokens: data } = await this.makePOSTRequest(
-      ExternalObtainAccessTokens,
-      {
-        pluginId: this.provider,
-        input: JSON.stringify({ code, state }),
-      },
-    );
+    const { externalObtainAccessTokens: data } = await this.makePOSTRequest(ExternalObtainAccessTokens, {
+      pluginId: this.provider,
+      input: JSON.stringify({ code, state }),
+    });
 
     return data;
   }

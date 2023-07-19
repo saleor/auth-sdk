@@ -60,9 +60,7 @@ export class SaleorAuthClient {
 
     return fetch(input, {
       ...init,
-      headers: shouldAddAuthHeader
-        ? { ...headers, Authorization: `Bearer ${this.accessToken}` }
-        : headers,
+      headers: shouldAddAuthHeader ? { ...headers, Authorization: `Bearer ${this.accessToken}` } : headers,
     });
   };
 
@@ -106,10 +104,7 @@ export class SaleorAuthClient {
     }
 
     // this is the first failed request, initialize refresh
-    this.tokenRefreshPromise = fetch(
-      this.saleorApiUrl,
-      getRequestData(TOKEN_REFRESH, { refreshToken }),
-    );
+    this.tokenRefreshPromise = fetch(this.saleorApiUrl, getRequestData(TOKEN_REFRESH, { refreshToken }));
     return this.fetchWithAuth(input, init);
   };
 
@@ -119,9 +114,7 @@ export class SaleorAuthClient {
     const readResponse: TOperation = await response.json();
 
     const responseData =
-      "tokenCreate" in readResponse.data
-        ? readResponse.data.tokenCreate
-        : readResponse.data.setPassword;
+      "tokenCreate" in readResponse.data ? readResponse.data.tokenCreate : readResponse.data.setPassword;
 
     if (!responseData) {
       return readResponse;

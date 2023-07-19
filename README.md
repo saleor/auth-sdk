@@ -247,18 +247,16 @@ export default function Home() {
     loading: isLoadingCurrentUser,
     error,
     data,
-  } = useQuery(
-    gql`
-      query CurrentUser {
-        me {
-          id
-          email
-          firstName
-          lastName
-        }
+  } = useQuery(gql`
+    query CurrentUser {
+      me {
+        id
+        email
+        firstName
+        lastName
       }
-    `,
-  );
+    }
+  `);
   const { authURL, loading: isLoadingExternalAuth } = useSaleorExternalAuth({
     saleorURL: "<your Saleor instance>",
     provider: ExternalProvider.OpenIDConnect,
@@ -296,10 +294,7 @@ You also need to define the auth callback. In `pages/api/auth` create the `callb
 import { ExternalProvider, SaleorExternalAuth } from "@saleor/auth-sdk";
 import { createSaleorExternalAuthHandler } from "@saleor/auth-sdk/next";
 
-const externalAuth = new SaleorExternalAuth(
-  "<your Saleor instance URL>",
-  ExternalProvider.OpenIDConnect,
-);
+const externalAuth = new SaleorExternalAuth("<your Saleor instance URL>", ExternalProvider.OpenIDConnect);
 
 export default createSaleorExternalAuthHandler(externalAuth);
 ```
