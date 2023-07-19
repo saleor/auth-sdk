@@ -12,6 +12,7 @@
     "clean": "rm -rf ./dist/*",
     "test": "vitest",
     "lint": "prettier --write . && eslint --fix src ",
+    "lint:ci": "prettier --check . && eslint src",
     "release": "release-it",
     "copy-files": "cp README.md dist/README.md"
   },
