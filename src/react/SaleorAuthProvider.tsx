@@ -1,19 +1,18 @@
-import { UseSaleorAuthClient } from "./useSaleorAuthClient";
 import { PropsWithChildren } from "react";
 import { invariant } from "../utils";
 import { Provider } from "./context";
+import { SaleorAuthClient } from "../SaleorAuthClient";
 
 export const SaleorAuthProvider = ({
   children,
-  saleorAuthClient,
-  isAuthenticating,
-}: PropsWithChildren<UseSaleorAuthClient>) => {
+  client,
+}: PropsWithChildren<{ client: SaleorAuthClient }>) => {
   invariant(
-    saleorAuthClient,
+    client,
     "Missing Saleor Auth Client - are you sure you created it using useSaleorAuthClient?",
   );
 
-  const { signIn, signOut, resetPassword } = saleorAuthClient;
+  const { signIn, signOut, resetPassword } = client;
 
-  return <Provider value={{ isAuthenticating, signIn, signOut, resetPassword }}>{children}</Provider>;
+  return <Provider value={{ signIn, signOut, resetPassword }}>{children}</Provider>;
 };

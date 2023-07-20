@@ -14,5 +14,7 @@ module.exports = {
   root: true,
   rules: {
     "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "@typescript-eslint/require-await": "off",
+    "no-empty-pattern": "off",
   },
 };

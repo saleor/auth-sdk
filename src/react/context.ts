@@ -1,9 +1,7 @@
 import { createContext, useContext } from "react";
-import { UseSaleorAuthClient } from "./useSaleorAuthClient";
 import { SaleorAuthClient } from "../SaleorAuthClient";
 
-type SaleorAuthContextConsumerProps = Pick<UseSaleorAuthClient, "isAuthenticating"> &
-  Omit<SaleorAuthClient, "fetchWithAuth" | "cleanup">;
+type SaleorAuthContextConsumerProps = Omit<SaleorAuthClient, "fetchWithAuth" | "cleanup">;
 
 export const createSafeContext = <TValue>() => {
   const context = createContext<TValue | undefined>(undefined);
