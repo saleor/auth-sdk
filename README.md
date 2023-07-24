@@ -39,7 +39,7 @@ Let's look at an example:
 import { AppProps } from "next/app";
 import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { createSaleorAuthClient } from "@saleor/auth-sdk";
-import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
+import { SaleorAuthProvider, useAuthChange } from "@saleor/auth-sdk/react";
 
 const saleorApiUrl = "<your Saleor API URL>";
 
@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
   });
 
   return (
-    <SaleorAuthProvider {...saleorAuth}>
+    <SaleorAuthProvider client={saleorAuthClient}>
       <ApolloProvider client={apolloClient}>
         <Component {...pageProps} />
       </ApolloProvider>
@@ -81,20 +81,34 @@ Then, in your register, login and logout forms you can use the auth methods (`si
 ```tsx
 import React, { FormEvent } from "react";
 import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
-import { useQuery } from "@apollo/client";
-import { CurrentUserDocument } from "../generated/graphql";
+import { gql, useQuery } from "@apollo/client";
 
-export const LoginPage = () => {
+const CurrentUserDocument = gql`
+  query CurrentUser {
+    me {
+      id
+      email
+      firstName
+      lastName
+      avatar {
+        url
+        alt
+      }
+    }
+  }
+`;
+
+export default function LoginPage() {
   const { signIn, signOut } = useSaleorAuthContext();
 
-  const [{ data: currentUser, loading }] = useQuery(CurrentUserDocument);
+  const { data: currentUser, loading } = useQuery(CurrentUserDocument);
 
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const result = await signIn({
-      email: "example@mail.com",
-      password: "password",
+      email: "admin@example.com",
+      password: "admin",
     });
 
     if (result.data.tokenCreate.errors) {
@@ -107,7 +121,7 @@ export const LoginPage = () => {
   }
 
   return (
-    <section>
+    <main className={`flex min-h-screen flex-col items-center justify-between p-24`}>
       {currentUser?.me ? (
         <>
           <div>Display user {JSON.stringify(currentUser)}</div>
@@ -127,9 +141,9 @@ export const LoginPage = () => {
           </form>
         </div>
       )}
-    </section>
+    </main>
   );
-};
+}
 ```
 
 ### Next.js (Pages Router) with [urql](https://formidable.com/open-source/urql/)
@@ -172,7 +186,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <SaleorAuthProvider client={saleorAuthClient}>
       <Provider value={urqlClient}>
-        <Component />
+        <Component {...pageProps} />
       </Provider>
     </SaleorAuthProvider>
   );
@@ -184,10 +198,24 @@ Then, in your register, login and logout forms you can use the auth methods (`si
 ```tsx
 import React, { FormEvent } from "react";
 import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
-import { useQuery } from "urql";
-import { CurrentUserDocument } from "../generated/graphql";
+import { gql, useQuery } from "urql";
 
-export const LoginPage = () => {
+const CurrentUserDocument = gql`
+  query CurrentUser {
+    me {
+      id
+      email
+      firstName
+      lastName
+      avatar {
+        url
+        alt
+      }
+    }
+  }
+`;
+
+export default function LoginPage() {
   const { signIn, signOut } = useSaleorAuthContext();
 
   const [{ data: currentUser, fetching: loading }] = useQuery({
@@ -199,8 +227,8 @@ export const LoginPage = () => {
     event.preventDefault();
 
     const result = await signIn({
-      email: "example@mail.com",
-      password: "password",
+      email: "admin@example.com",
+      password: "admin",
     });
 
     if (result.data.tokenCreate.errors) {
@@ -213,7 +241,7 @@ export const LoginPage = () => {
   }
 
   return (
-    <section>
+    <main className={`flex min-h-screen flex-col items-center justify-between p-24`}>
       {currentUser?.me ? (
         <>
           <div>Display user {JSON.stringify(currentUser)}</div>
@@ -233,9 +261,9 @@ export const LoginPage = () => {
           </form>
         </div>
       )}
-    </section>
+    </main>
   );
-};
+}
 ```
 
 ### Next.js (Pages Router) with OpenID Connect
