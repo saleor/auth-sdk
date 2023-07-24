@@ -44,7 +44,9 @@ export class SaleorExternalAuth {
       throw new Error(errors[0].message);
     }
 
-    const { authorizationUrl } = JSON.parse(data) as { authorizationUrl: string };
+    const { authorizationUrl } = JSON.parse(data) as {
+      authorizationUrl: string;
+    };
 
     return authorizationUrl;
   }

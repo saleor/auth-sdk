@@ -55,7 +55,10 @@ export const getRequestData = <TResult, TVariables>(
     "Content-Type": "application/json",
   },
 
-  body: JSON.stringify({ query: print(query as unknown as DocumentNode), variables }),
+  body: JSON.stringify({
+    query: print(query as unknown as DocumentNode),
+    variables,
+  }),
 });
 
 export class InvariantError extends Error {
