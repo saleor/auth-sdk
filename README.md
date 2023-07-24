@@ -175,6 +175,7 @@ const makeUrqlClient = () =>
   });
 
 export default function App({ Component, pageProps }: AppProps) {
+  // https://github.com/urql-graphql/urql/issues/297#issuecomment-504782794
   const [urqlClient, setUrqlClient] = useState<Client>(makeUrqlClient());
 
   useAuthChange({
