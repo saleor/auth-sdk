@@ -38,7 +38,9 @@ export class SaleorAuthClient {
 
   constructor({ saleorApiUrl, storage, onAuthRefresh }: SaleorAuthClientProps) {
     const internalStorage = storage || (typeof window !== "undefined" ? window.localStorage : undefined);
-    this.storageHandler = internalStorage ? new SaleorAuthStorageHandler(internalStorage, saleorApiUrl) : null
+    this.storageHandler = internalStorage
+      ? new SaleorAuthStorageHandler(internalStorage, saleorApiUrl)
+      : null;
     this.onAuthRefresh = onAuthRefresh;
     this.saleorApiUrl = saleorApiUrl;
   }
@@ -187,9 +189,11 @@ export class SaleorAuthClient {
   signOut = () => {
     this.accessToken = null;
     this.storageHandler?.clearAuthStorage();
-    document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
+    document.cookie = cookie.serialize("token", "", {
+      expires: new Date(0),
+      path: "/",
+    });
   };
 }
 
-export const createSaleorAuthClient = (props: SaleorAuthClientProps) =>
-  new SaleorAuthClient(props);
+export const createSaleorAuthClient = (props: SaleorAuthClientProps) => new SaleorAuthClient(props);

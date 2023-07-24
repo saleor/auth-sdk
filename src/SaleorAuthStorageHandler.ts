@@ -34,7 +34,9 @@ export class SaleorAuthStorageHandler {
 
   /* auth state */
   sendAuthStateEvent = (authState: AuthState) => {
-    const event = new CustomEvent(getStorageAuthEventKey(this.prefix), { detail: { authState } });
+    const event = new CustomEvent(getStorageAuthEventKey(this.prefix), {
+      detail: { authState },
+    });
     window.dispatchEvent(event);
   };
 

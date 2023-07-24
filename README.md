@@ -27,9 +27,9 @@ Check the following [step-by-step video](https://www.youtube.com/watch?v=t6nxBk7
 
 When using Next.js (Pages Router) along with [Apollo Client](https://www.apollographql.com/docs/react/), there are two essential steps to setting up your application. First, you have to surround your application's root with two providers: `<SaleorAuthProvider>` and `<ApolloProvider>`.
 
-`<SaleorAuthProvider>` comes from our React.js-auth package, located at `@saleor/auth-sdk/react`, and it needs to be set up with the output of `useSaleorAuthClient`.
+`<SaleorAuthProvider>` comes from our React.js-auth package, located at `@saleor/auth-sdk/react`, and it needs to be set up with the Saleor auth client instance.
 
-The `<ApolloProvider>` comes from `@apollo/client` and it needs the live GraphQL client instance, which is enhanced with the authenticated `fetch`. This `fetch` is also an output of `useSaleorAuthClient` and available as `fetchWithAuth`.
+The `<ApolloProvider>` comes from `@apollo/client` and it needs the live GraphQL client instance, which is enhanced with the authenticated `fetch` that comes from the Saleor auth client.
 
 Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and `onSignedIn` events.
 
@@ -37,25 +37,33 @@ Let's look at an example:
 
 ```tsx
 import { AppProps } from "next/app";
-import { ApolloProvider } from "@apollo/client";
-
+import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import { createSaleorAuthClient } from "@saleor/auth-sdk";
 import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
-import { useAuthenticatedApolloClient } from "@saleor/auth-sdk/react/apollo";
 
-const SaleorURL = "<your Saleor API URL>";
+const saleorApiUrl = "<your Saleor API URL>";
+
+// Saleor Client
+const saleorAuthClient = createSaleorAuthClient({ saleorApiUrl });
+
+// Apollo Client
+const httpLink = createHttpLink({
+  uri: saleorApiUrl,
+  fetch: saleorAuthClient.fetchWithAuth,
+});
+
+export const apolloClient = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache(),
+});
 
 export default function App({ Component, pageProps }: AppProps) {
-  const saleorAuth = useSaleorAuthClient({ saleorApiUrl: SaleorURL });
-
-  const { apolloClient, reset, refetch } = useAuthenticatedApolloClient({
-    uri: SaleorURL,
-    fetchWithAuth: saleorAuth.saleorAuthClient.fetchWithAuth,
-  });
-
   useAuthChange({
-    saleorApiUrl: SaleorURL,
-    onSignedOut: () => reset(),
-    onSignedIn: () => refetch(),
+    saleorApiUrl,
+    onSignedOut: () => apolloClient.resetStore(),
+    onSignedIn: () => {
+      apolloClient.refetchQueries({ include: "all" });
+    },
   });
 
   return (
@@ -77,24 +85,24 @@ import { useQuery } from "@apollo/client";
 import { CurrentUserDocument } from "../generated/graphql";
 
 export const LoginPage = () => {
-  const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
+  const { signIn, signOut } = useSaleorAuthContext();
 
-  const [{ data: currentUser, loading: isLoadingCurrentUser }] = useQuery(CurrentUserDocument);
-
-  // important: wait for both the end of auth process and the end of query invocation
-  const isLoading = isAuthenticating || isLoadingCurrentUser;
+  const [{ data: currentUser, loading }] = useQuery(CurrentUserDocument);
 
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const result = await signIn({ email: "example@mail.com", password: "password" });
+    const result = await signIn({
+      email: "example@mail.com",
+      password: "password",
+    });
 
     if (result.data.tokenCreate.errors) {
       // handle errors
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -128,9 +136,9 @@ export const LoginPage = () => {
 
 When using Next.js (Pages Router) along with [urql](https://formidable.com/open-source/urql/) client, there are two essential steps to setting up your application. First, you have to surround your application's root with two providers: `<SaleorAuthProvider>` and `<Provider>`.
 
-`<SaleorAuthProvider>` comes from our React.js-auth package, located at `@saleor/auth-sdk/react`, and it needs to be set up with the output of `useSaleorAuthClient`.
+`<SaleorAuthProvider>` comes from our React.js-auth package, located at `@saleor/auth-sdk/react`, and it needs to be set up with the Saleor auth client.
 
-The `<Provider>` comes from `urql` and it needs the GraphQL client instance, which is enhanced with the authenticated `fetch`. This `fetch` is also an output of `useSaleorAuthClient` and available as `fetchWithAuth`.
+The `<Provider>` comes from `urql` and it needs the GraphQL client instance, which is enhanced with the authenticated `fetch` that comes from the Saleor auth client.
 
 Lastly, you must run the `useAuthChange` hook. This links the `onSignedOut` and `onSignedIn` events and is meant to refresh the GraphQL store and in-flight active GraphQL queries.
 
@@ -139,38 +147,39 @@ Let's look at an example:
 ```tsx
 import { AppProps } from "next/app";
 import { Provider, cacheExchange, fetchExchange, ssrExchange } from "urql";
+import { SaleorAuthProvider, useAuthChange } from "@saleor/auth-sdk/react";
 
-import { SaleorAuthProvider, useAuthChange, useSaleorAuthClient } from "@saleor/auth-sdk/react";
-import { useUrqlClient } from "@saleor/auth-sdk/react/urql";
+const saleorApiUrl = "<your Saleor API URL>";
 
-const SaleorURL = "<your Saleor API URL>";
+const saleorAuthClient = createSaleorAuthClient({ saleorApiUrl });
 
-export default function App({ Component, pageProps }: AppProps) {
-  const useSaleorAuthClientProps = useSaleorAuthClient({
-    saleorApiUrl: SaleorURL,
-  });
-
-  const { urqlClient, reset, refetch } = useUrqlClient({
-    url: SaleorURL,
-    fetch: useSaleorAuthClientProps.saleorAuthClient.fetchWithAuth,
+const makeUrqlClient = () =>
+  createClient({
+    url: saleorApiUrl,
+    fetch: saleorAuthClient.fetchWithAuth,
     exchanges: [cacheExchange, fetchExchange],
   });
 
+export default function App({ Component, pageProps }: AppProps) {
+  const [urqlClient, setUrqlClient] = useState<Client>(makeUrqlClient());
+
   useAuthChange({
-    saleorApiUrl: SaleorURL,
-    onSignedOut: () => reset(),
-    onSignedIn: () => refetch(),
+    saleorApiUrl,
+    onSignedOut: () => setUrqlClient(makeUrqlClient()),
+    onSignedIn: () => setUrqlClient(makeUrqlClient()),
   });
 
   return (
-    <SaleorAuthProvider {...useSaleorAuthClientProps}>
-      <Provider value={urqlClient}>// ... Your Application</Provider>
+    <SaleorAuthProvider client={saleorAuthClient}>
+      <Provider value={urqlClient}>
+        <Component />
+      </Provider>
     </SaleorAuthProvider>
   );
 }
 ```
 
-Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`, `isAuthenticating`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
+Then, in your register, login and logout forms you can use the auth methods (`signIn`, `signOut`) provided by the `useSaleorAuthContext()`. For example, `signIn` is usually triggered when submitting the login form credentials.
 
 ```tsx
 import React, { FormEvent } from "react";
@@ -179,15 +188,12 @@ import { useQuery } from "urql";
 import { CurrentUserDocument } from "../generated/graphql";
 
 export const LoginPage = () => {
-  const { signIn, signOut, isAuthenticating } = useSaleorAuthContext();
+  const { signIn, signOut } = useSaleorAuthContext();
 
-  const [{ data: currentUser, fetching: isLoadingCurrentUser }] = useQuery({
+  const [{ data: currentUser, fetching: loading }] = useQuery({
     query: CurrentUserDocument,
     pause: isAuthenticating,
   });
-
-  // important: wait for both the end of auth process and the end of query invocation
-  const isLoading = isAuthenticating || isLoadingCurrentUser;
 
   const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -202,7 +208,7 @@ export const LoginPage = () => {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -258,7 +264,7 @@ export default function Home() {
     }
   `);
   const { authURL, loading: isLoadingExternalAuth } = useSaleorExternalAuth({
-    saleorURL: "<your Saleor instance>",
+    saleorApiUrl,
     provider: ExternalProvider.OpenIDConnect,
     redirectURL: "<your Next.js app>/api/auth/callback",
   });

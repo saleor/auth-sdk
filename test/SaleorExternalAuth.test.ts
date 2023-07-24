@@ -6,7 +6,9 @@ describe("SaleorExternalAuth", () => {
   it("initiates external authentication successfully", async ({}) => {
     const mockData = {
       externalAuthenticationUrl: {
-        authenticationData: JSON.stringify({ authorizationUrl: "https://saleor.auth" }),
+        authenticationData: JSON.stringify({
+          authorizationUrl: "https://saleor.auth",
+        }),
         errors: [],
       },
     };
