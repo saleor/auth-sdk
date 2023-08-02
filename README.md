@@ -20,8 +20,8 @@
 <details>
   <summary>Step-by-step video tutorial</summary>
 
-Check the following [step-by-step video](https://www.youtube.com/watch?v=t6nxBk7JHCw) guide on how to set this up.
-[![Saleor Auth with Next.js](https://img.youtube.com/vi/t6nxBk7JHCw/0.jpg)](https://www.youtube.com/watch?v=t6nxBk7JHCw)
+Check the following [step-by-step video](https://www.youtube.com/watch?v=XY1t8JiPwk0) guide on how to set this up.
+[![Saleor Auth with Next.js](https://img.youtube.com/vi/t6nxBk7JHCw/0.jpg)](https://www.youtube.com/watch?v=XY1t8JiPwk0)
 
 </details>
 
