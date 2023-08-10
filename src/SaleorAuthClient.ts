@@ -83,7 +83,7 @@ export class SaleorAuthClient {
     invariant(refreshToken, "Missing refresh token in token refresh handler");
 
     // the refresh already finished, proceed as normal
-    if (this.accessToken) {
+    if (this.accessToken && !isExpiredToken(this.accessToken)) {
       return this.fetchWithAuth(input, init);
     }
 
