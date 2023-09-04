@@ -1,4 +1,11 @@
 export type Fetch = typeof fetch;
+export type FetchWithAdditionalParams = (
+  input: Parameters<Fetch>[0],
+  init?: Parameters<Fetch>[1],
+  additionalParams?: {
+    allowPassingTokenToThirdPartyDomains?: boolean;
+  },
+) => Promise<Response>;
 
 export interface TokenCreateVariables {
   email: string;
