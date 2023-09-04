@@ -1,7 +1,7 @@
 import { SaleorAuthStorageHandler } from "./SaleorAuthStorageHandler";
 import { getRequestData, getTokenIss, isExpiredToken } from "./utils";
 import {
-  Fetch,
+  FetchWithAdditionalParams,
   PasswordResetResponse,
   PasswordResetVariables,
   TokenCreateResponse,
@@ -49,7 +49,7 @@ export class SaleorAuthClient {
     this.storageHandler?.cleanup();
   };
 
-  private runAuthorizedRequest: Fetch = (input, init) => {
+  private runAuthorizedRequest: FetchWithAdditionalParams = (input, init, additionalParams) => {
     // technically we run this only when token is there
     // but just to make typescript happy
     if (!this.accessToken) {
@@ -69,22 +69,42 @@ export class SaleorAuthClient {
     };
 
     const iss = getTokenIss(this.accessToken);
-    const shouldAddAuthHeader = getURL(input) === iss;
+    const issuerAndDomainMatch = getURL(input) === iss;
+    const shouldAddAuthorizationHeader =
+      issuerAndDomainMatch || additionalParams?.allowPassingTokenToThirdPartyDomains;
+
+    if (!issuerAndDomainMatch) {
+      if (shouldAddAuthorizationHeader) {
+        console.warn(
+          "Token's `iss` and request URL do not match but `allowPassingTokenToThirdPartyDomains` was specified.",
+        );
+      } else {
+        console.warn(
+          "Token's `iss` and request URL do not match. Not adding `Authorization` header to the request.",
+        );
+      }
+    }
 
     return fetch(input, {
       ...init,
-      headers: shouldAddAuthHeader ? { ...headers, Authorization: `Bearer ${this.accessToken}` } : headers,
+      headers: shouldAddAuthorizationHeader
+        ? { ...headers, Authorization: `Bearer ${this.accessToken}` }
+        : headers,
     });
   };
 
-  private handleRequestWithTokenRefresh: Fetch = async (input, init) => {
+  private handleRequestWithTokenRefresh: FetchWithAdditionalParams = async (
+    input,
+    init,
+    additionalParams,
+  ) => {
     const refreshToken = this.storageHandler?.getRefreshToken();
 
     invariant(refreshToken, "Missing refresh token in token refresh handler");
 
     // the refresh already finished, proceed as normal
     if (this.accessToken && !isExpiredToken(this.accessToken)) {
-      return this.fetchWithAuth(input, init);
+      return this.fetchWithAuth(input, init, additionalParams);
     }
 
     this.onAuthRefresh?.(true);
@@ -113,12 +133,12 @@ export class SaleorAuthClient {
       this.storageHandler?.setAuthState("signedIn");
       this.accessToken = token;
       this.tokenRefreshPromise = null;
-      return this.runAuthorizedRequest(input, init);
+      return this.runAuthorizedRequest(input, init, additionalParams);
     }
 
     // this is the first failed request, initialize refresh
     this.tokenRefreshPromise = fetch(this.saleorApiUrl, getRequestData(TOKEN_REFRESH, { refreshToken }));
-    return this.fetchWithAuth(input, init);
+    return this.fetchWithAuth(input, init, additionalParams);
   };
 
   private handleSignIn = async <TOperation extends TokenCreateResponse | PasswordResetResponse>(
@@ -152,7 +172,11 @@ export class SaleorAuthClient {
     return readResponse;
   };
 
-  fetchWithAuth: Fetch = async (input, init) => {
+  /**
+   * @param additionalParams
+   * @param additionalParams.allowPassingTokenToThirdPartyDomains if set to true, the `Authorization` header will be added to the request even if the token's `iss` and request URL do not match
+   */
+  fetchWithAuth: FetchWithAdditionalParams = async (input, init, additionalParams) => {
     const refreshToken = this.storageHandler?.getRefreshToken();
 
     if (!this.accessToken) {
@@ -162,12 +186,12 @@ export class SaleorAuthClient {
 
     // access token is fine, add it to the request and proceed
     if (this.accessToken && !isExpiredToken(this.accessToken)) {
-      return this.runAuthorizedRequest(input, init);
+      return this.runAuthorizedRequest(input, init, additionalParams);
     }
 
     // refresh token exists, try to authenticate if possible
     if (refreshToken) {
-      return this.handleRequestWithTokenRefresh(input, init);
+      return this.handleRequestWithTokenRefresh(input, init, additionalParams);
     }
 
     // any regular mutation, no previous sign in, proceed
