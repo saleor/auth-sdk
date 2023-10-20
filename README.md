@@ -6,9 +6,9 @@
   
 # Saleor Auth SDK
 
-Saleor Auth SDK is the seamless integration of secure and customizable authentication and authorization functionalities into Saleor-powered e-commerce applications.
+Saleor Auth SDK integrates secure and customizable authentication and authorization into storefronts using Saleor.
 
-**Only 3kB gzipped!**
+**Below 3kB bundle size (gzipped).**
 
 </div>
 
