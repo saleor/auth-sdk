@@ -1,14 +1,29 @@
+import { TypedDocumentString } from "./graphql";
 import { ExternalAuthenticationURL, ExternalObtainAccessTokens } from "./mutations";
 import { ExternalProvider } from "./types";
 import { getRequestData } from "./utils";
-import { TypedDocumentNode } from "urql";
 
 interface RedirectData {
   code: string;
   state: string;
 }
 
-type GraphQLResponse<TResult> = { data: TResult } | { errors: { message: string }[] };
+interface GraphQLErrorResponse {
+  errors: readonly {
+    message: string;
+  }[];
+}
+
+type GraphQLResponse<T> = { data: T } | GraphQLErrorResponse;
+
+export class GraphQLError extends Error {
+  constructor(public errorResponse: GraphQLErrorResponse) {
+    const message = errorResponse.errors.map((error) => error.message).join("\n");
+    super(message);
+    this.name = this.constructor.name;
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
 
 export class SaleorExternalAuth {
   constructor(
@@ -17,7 +32,7 @@ export class SaleorExternalAuth {
   ) {}
 
   async makePOSTRequest<TResult, TVariables>(
-    query: TypedDocumentNode<TResult, TVariables>,
+    query: TypedDocumentString<TResult, TVariables>,
     variables: TVariables,
   ) {
     const response = await fetch(this.saleorURL, getRequestData(query, variables));
@@ -25,8 +40,8 @@ export class SaleorExternalAuth {
     const result = (await response.json()) as GraphQLResponse<TResult>;
 
     if ("errors" in result) {
-      console.error(result.errors[0].message);
-      throw new Error(result.errors[0].message);
+      console.error(result.errors);
+      throw new GraphQLError(result);
     }
 
     return result.data;
@@ -41,7 +56,8 @@ export class SaleorExternalAuth {
     });
 
     if (errors.length > 0) {
-      throw new Error(errors[0].message);
+      console.error({ errors });
+      throw new GraphQLError({ errors });
     }
 
     const { authorizationUrl } = JSON.parse(data) as {

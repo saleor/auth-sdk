@@ -43,6 +43,7 @@ describe("SaleorAuthClient", () => {
       if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
+      return undefined;
     });
 
     fetchMock.mockResponse(async (req) => {
@@ -82,6 +83,7 @@ describe("SaleorAuthClient", () => {
       if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
+      return undefined;
     });
 
     fetchMock.mockResponse(async (req) => {
@@ -138,6 +140,7 @@ describe("SaleorAuthClient", () => {
       if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
+      return undefined;
     });
 
     fetchMock.mockResponse(async (req) => {

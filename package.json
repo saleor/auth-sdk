@@ -2,8 +2,10 @@
   "name": "@saleor/auth-sdk",
   "version": "0.12.0",
   "description": "Auth SDK for Saleor",
+  "sideEffects": false,
   "types": "index.d.ts",
   "main": "index.js",
+  "module": "index.mjs",
   "scripts": {
     "prepublishOnly": "pnpm build",
     "prebuild": "pnpm clean",
@@ -13,7 +15,7 @@
     "test": "vitest",
     "lint": "prettier --write . && eslint --fix src ",
     "lint:ci": "prettier --check . && eslint src",
-    "release": "release-it",
+    "release": "cd dist && ../node_modules/.bin/release-it",
     "copy-files": "cp README.md dist/README.md"
   },
   "keywords": [],
@@ -21,14 +23,13 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "cookie": "^0.5.0",
-    "graphql": "^16.8.0",
-    "graphql-tag": "^2.12.6"
+    "graphql": "^16.8.1"
   },
   "peerDependencies": {
     "@apollo/client": "^3.7.15",
     "next": "^13.4.4",
-    "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react": "^18.2.0",
     "urql": "^4.0.3"
   },
   "peerDependenciesMeta": {
@@ -49,39 +50,38 @@
     }
   },
   "devDependencies": {
-    "@apollo/client": "^3.8.2",
+    "@apollo/client": "^3.8.6",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@types/cookie": "^0.5.1",
-    "@types/debug": "^4.1.8",
-    "@types/js-cookie": "^3.0.3",
-    "@types/node": "^20.5.9",
-    "@types/node-fetch": "^2.6.4",
-    "@types/react": "18.2.21",
-    "@types/react-dom": "^18.2.7",
-    "@types/uuid": "^9.0.3",
-    "@typescript-eslint/eslint-plugin": "^6.5.0",
-    "@typescript-eslint/parser": "^6.5.0",
-    "@vitejs/plugin-react": "^4.0.4",
+    "@types/cookie": "^0.5.3",
+    "@types/debug": "^4.1.10",
+    "@types/node-fetch": "^2.6.7",
+    "@types/node": "^20.8.7",
+    "@types/react-dom": "^18.2.14",
+    "@types/react": "^18.2.30",
+    "@types/uuid": "^9.0.6",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "@vitejs/plugin-react": "^4.1.0",
     "clean-publish": "^4.2.0",
-    "eslint": "8.48.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "jsdom": "22.1.0",
-    "prettier": "3.0.3",
-    "react": "^18.2.0",
+    "eslint": "^8.51.0",
+    "jsdom": "^22.1.0",
+    "prettier": "^3.0.3",
     "react-dom": "^18.2.0",
-    "release-it": "^16.1.5",
+    "react": "^18.2.0",
+    "release-it": "^16.2.1",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "urql": "^4.0.5",
-    "vite": "^4.4.9",
-    "vitest": "^0.34.3",
-    "vitest-fetch-mock": "0.2.2"
+    "vite": "^4.5.0",
+    "vitest-fetch-mock": "^0.2.2",
+    "vitest": "^0.34.6"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": "eslint --cache --fix",
@@ -89,16 +89,6 @@
   },
   "exports": {
     "./package.json": "./package.json",
-    "./react/apollo": {
-      "types": "./react/apollo.d.ts",
-      "require": "./react/apollo.js",
-      "default": "./react/apollo.js"
-    },
-    "./react/urql": {
-      "types": "./react/urql.d.ts",
-      "import": "./react/urql.mjs",
-      "require": "./react/urql.js"
-    },
     "./react": {
       "types": "./react/index.d.ts",
       "import": "./react/index.mjs",
