@@ -3,14 +3,31 @@
 </div>
 
 <div align="center">
-  <h1>Saleor Auth SDK</h1>
+  
+# Saleor Auth SDK
 
-  <p>Saleor Auth SDK is the seamless integration of secure and customizable authentication and authorization functionalities into Saleor-powered e-commerce applications.</p>
+Saleor Auth SDK is the seamless integration of secure and customizable authentication and authorization functionalities into Saleor-powered e-commerce applications.
+
+**Only 3kB gzipped!**
+
 </div>
 
 <div align="center">
-  <a href="https://docs.saleor.io/docs/3.x/api-usage/authentication">Docs</a> 
-  | <a href="https://www.npmjs.com/package/@saleor/auth-sdk">npm</a>
+  <a href="https://www.npmjs.com/package/@saleor/auth-sdk">npm</a>
+  <span> • </span>
+  <a href="https://docs.saleor.io/docs/3.x/api-usage/authentication">Docs</a>
+  <span> • </span>
+  <a href="https://twitter.com/getsaleor">Twitter</a>
+  <span> • </span>
+  <a href="https://discord.gg/H52JTZAtSH">Discord</a>
+</div>
+
+<br/>
+
+<div align="center">
+
+[![Discord Badge](https://dcbadge.vercel.app/api/server/H52JTZAtSH)](https://discord.gg/H52JTZAtSH)
+
 </div>
 
 ## Usage
