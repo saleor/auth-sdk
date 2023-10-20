@@ -1,6 +1,4 @@
-import { print } from "graphql/language/printer.js";
-import type { DocumentNode } from "graphql";
-import { TypedDocumentNode } from "urql";
+import { TypedDocumentString } from "./graphql";
 
 const MILLI_MULTIPLYER = 1000;
 const TOKEN_GRACE_PERIOD = 2000;
@@ -47,7 +45,7 @@ export const isExpiredToken = (token: string) => {
 // https://github.com/pnpm/pnpm/issues/4097
 // we're gonna do this instead
 export const getRequestData = <TResult, TVariables>(
-  query: TypedDocumentNode<TResult, TVariables>,
+  query: TypedDocumentString<TResult, TVariables>,
   variables: TVariables,
 ) => ({
   method: "POST",
@@ -56,7 +54,7 @@ export const getRequestData = <TResult, TVariables>(
   },
 
   body: JSON.stringify({
-    query: print(query as unknown as DocumentNode),
+    query,
     variables,
   }),
 });

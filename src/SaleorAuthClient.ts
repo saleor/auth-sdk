@@ -1,6 +1,7 @@
 import { SaleorAuthStorageHandler } from "./SaleorAuthStorageHandler";
 import { getRequestData, getTokenIss, isExpiredToken } from "./utils";
-import {
+import type {
+  FetchRequestInfo,
   FetchWithAdditionalParams,
   PasswordResetResponse,
   PasswordResetVariables,
@@ -58,13 +59,13 @@ export class SaleorAuthClient {
 
     const headers = init?.headers || {};
 
-    const getURL = (input: RequestInfo | URL) => {
+    const getURL = (input: FetchRequestInfo) => {
       if (typeof input === "string") {
         return input;
-      } else if (input instanceof URL) {
-        return input.href;
-      } else {
+      } else if ("url" in input) {
         return input.url;
+      } else {
+        return input.href;
       }
     };
 
@@ -180,7 +181,7 @@ export class SaleorAuthClient {
     const refreshToken = this.storageHandler?.getRefreshToken();
 
     if (!this.accessToken) {
-      this.accessToken = cookie.parse(document.cookie).token;
+      this.accessToken = cookie.parse(document.cookie).token ?? null;
       document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
     }
 

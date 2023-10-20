@@ -1,7 +1,9 @@
 export type Fetch = typeof fetch;
+export type FetchRequestInfo = Parameters<Fetch>[0];
+export type FetchRequestInit = Parameters<Fetch>[1];
 export type FetchWithAdditionalParams = (
-  input: Parameters<Fetch>[0],
-  init?: Parameters<Fetch>[1],
+  input: FetchRequestInfo,
+  init?: FetchRequestInit,
   additionalParams?: {
     allowPassingTokenToThirdPartyDomains?: boolean;
   },
