@@ -1,7 +1,6 @@
 import { TypedDocumentString } from "./graphql";
 
 const MILLI_MULTIPLYER = 1000;
-const TOKEN_GRACE_PERIOD = 2000;
 
 interface TokenData {
   iat: number;
@@ -34,10 +33,8 @@ export const getTokenIss = (token: string): string => {
   return parsedTokenData.iss;
 };
 
-export const isExpiredToken = (token: string) => {
-  // we'll assume a generous time of 2 seconds for api to
-  // process our request
-  return getTokenExpiry(token) - TOKEN_GRACE_PERIOD <= Date.now();
+export const isExpiredToken = (token: string, tokenGracePeriod: number) => {
+  return getTokenExpiry(token) - tokenGracePeriod <= Date.now();
 };
 
 // query here is document node but because of graphql-tag using

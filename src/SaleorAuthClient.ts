@@ -17,9 +17,14 @@ export interface SaleorAuthClientProps {
   onAuthRefresh?: (isAuthenticating: boolean) => void;
   saleorApiUrl: string;
   storage?: Storage;
+  tokenGracePeriod?: number;
 }
 
 export class SaleorAuthClient {
+  // we'll assume a generous time of 2 seconds for api to
+  // process our request
+  private tokenGracePeriod = 2000;
+
   private accessToken: string | null = null;
   private tokenRefreshPromise: null | Promise<Response> = null;
   private onAuthRefresh?: (isAuthenticating: boolean) => void;
@@ -37,7 +42,11 @@ export class SaleorAuthClient {
    *  ```
    */
 
-  constructor({ saleorApiUrl, storage, onAuthRefresh }: SaleorAuthClientProps) {
+  constructor({ saleorApiUrl, storage, onAuthRefresh, tokenGracePeriod }: SaleorAuthClientProps) {
+    if (tokenGracePeriod) {
+      this.tokenGracePeriod = tokenGracePeriod;
+    }
+
     const internalStorage = storage || (typeof window !== "undefined" ? window.localStorage : undefined);
     this.storageHandler = internalStorage
       ? new SaleorAuthStorageHandler(internalStorage, saleorApiUrl)
@@ -104,7 +113,7 @@ export class SaleorAuthClient {
     invariant(refreshToken, "Missing refresh token in token refresh handler");
 
     // the refresh already finished, proceed as normal
-    if (this.accessToken && !isExpiredToken(this.accessToken)) {
+    if (this.accessToken && !isExpiredToken(this.accessToken, this.tokenGracePeriod)) {
       return this.fetchWithAuth(input, init, additionalParams);
     }
 
@@ -186,7 +195,7 @@ export class SaleorAuthClient {
     }
 
     // access token is fine, add it to the request and proceed
-    if (this.accessToken && !isExpiredToken(this.accessToken)) {
+    if (this.accessToken && !isExpiredToken(this.accessToken, this.tokenGracePeriod)) {
       return this.runAuthorizedRequest(input, init, additionalParams);
     }
 
