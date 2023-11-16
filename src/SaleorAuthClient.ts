@@ -135,7 +135,6 @@ export class SaleorAuthClient {
 
     // the refresh already finished, proceed as normal
     if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
-      console.log("Not expired, proceed");
       return this.fetchWithAuth(input, init, additionalParams);
     }
 
@@ -143,11 +142,9 @@ export class SaleorAuthClient {
 
     // if the promise is already there, use it
     if (this.tokenRefreshPromise) {
-      console.log("Token refresh promise already exists, wait for it");
       const response = await this.tokenRefreshPromise;
 
       const res = (await response.clone().json()) as TokenRefreshResponse;
-      console.log(res);
 
       const {
         errors: graphqlErrors,
@@ -165,18 +162,12 @@ export class SaleorAuthClient {
       }
 
       this.refreshTokenStorage?.setAuthState("signedIn");
-      const a = this.acessTokenStorage.getAccessToken();
       this.acessTokenStorage.setAccessToken(token);
-      const b = this.acessTokenStorage.getAccessToken();
-      console.log(a === b);
-      console.log(a === token);
-      console.log(b === token);
       this.tokenRefreshPromise = null;
       return this.runAuthorizedRequest(input, init, additionalParams);
     }
 
     // this is the first failed request, initialize refresh
-    console.log("Initialize token refresh");
     this.tokenRefreshPromise = fetch(this.saleorApiUrl, getRequestData(TOKEN_REFRESH, { refreshToken }));
     return this.fetchWithAuth(input, init, additionalParams);
   };
@@ -218,10 +209,8 @@ export class SaleorAuthClient {
    */
   fetchWithAuth: FetchWithAdditionalParams = async (input, init, additionalParams) => {
     const refreshToken = this.refreshTokenStorage?.getRefreshToken();
-    console.log({ refreshToken });
 
     let accessToken = this.acessTokenStorage.getAccessToken();
-    console.log({ accessToken });
     if (!accessToken) {
       if (typeof document !== "undefined") {
         const tokenFromCookie = cookie.parse(document.cookie).token ?? null;
@@ -235,18 +224,15 @@ export class SaleorAuthClient {
 
     // access token is fine, add it to the request and proceed
     if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
-      console.log("Not expired, proceed");
       return this.runAuthorizedRequest(input, init, additionalParams);
     }
 
     // refresh token exists, try to authenticate if possible
     if (refreshToken) {
-      console.log("Refresh token exists, try to authenticate");
       return this.handleRequestWithTokenRefresh(input, init, additionalParams);
     }
 
     // any regular mutation, no previous sign in, proceed
-    console.log("No refresh token, proceed");
     return fetch(input, init);
   };
 

@@ -1,13 +1,14 @@
 import { it, describe, vi, expect } from "vitest";
 import { SaleorAuthClient } from "../src/SaleorAuthClient";
 import { getRefreshTokenKey } from "../src/SaleorRefreshTokenStorageHandler";
+import type { StorageRepository } from "../src";
 
 describe("SaleorAuthClient", () => {
   const mockStorage = {
     getItem: vi.fn(),
     setItem: vi.fn(),
-  };
-  const storage = mockStorage as unknown as Storage;
+    removeItem: vi.fn(),
+  } satisfies StorageRepository;
   const masterStagingUrl = "https://master.staging.saleor.cloud/graphql/";
   const otherApiUrl = "https://some-other-domain-auth-sdk.saleor.cloud/graphql/";
 
@@ -15,7 +16,7 @@ describe("SaleorAuthClient", () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
       saleorApiUrl: masterStagingUrl,
-      storage,
+      refreshTokenStorage: mockStorage,
       onAuthRefresh,
     });
 
@@ -34,7 +35,7 @@ describe("SaleorAuthClient", () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
       saleorApiUrl: masterStagingUrl,
-      storage,
+      refreshTokenStorage: mockStorage,
       onAuthRefresh,
     });
 
@@ -43,7 +44,7 @@ describe("SaleorAuthClient", () => {
       if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
-      return undefined;
+      return null;
     });
 
     fetchMock.mockResponse(async (req) => {
@@ -74,7 +75,7 @@ describe("SaleorAuthClient", () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
       saleorApiUrl: masterStagingUrl,
-      storage,
+      refreshTokenStorage: mockStorage,
       onAuthRefresh,
     });
 
@@ -83,7 +84,7 @@ describe("SaleorAuthClient", () => {
       if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
-      return undefined;
+      return null;
     });
 
     fetchMock.mockResponse(async (req) => {
@@ -114,7 +115,7 @@ describe("SaleorAuthClient", () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
       saleorApiUrl: otherApiUrl,
-      storage,
+      refreshTokenStorage: mockStorage,
       onAuthRefresh,
     });
 
@@ -131,7 +132,7 @@ describe("SaleorAuthClient", () => {
     const onAuthRefresh = vi.fn();
     const saleorAuthClient = new SaleorAuthClient({
       saleorApiUrl: masterStagingUrl,
-      storage,
+      refreshTokenStorage: mockStorage,
       onAuthRefresh,
     });
 
@@ -140,7 +141,7 @@ describe("SaleorAuthClient", () => {
       if (key === getRefreshTokenKey(masterStagingUrl)) {
         return refreshToken;
       }
-      return undefined;
+      return null;
     });
 
     fetchMock.mockResponse(async (req) => {
