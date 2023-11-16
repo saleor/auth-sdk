@@ -1,3 +1,5 @@
+import type { StorageRepository } from "./types";
+
 /* auth state when user signs in / out */
 export const getStorageAuthEventKey = (prefix?: string) =>
   [prefix, "saleor_storage_auth_change"].filter(Boolean).join("+");
@@ -10,12 +12,14 @@ export type AuthState = "signedIn" | "signedOut";
 
 export type SaleorAuthEvent = CustomEvent<{ authState: AuthState }>;
 
-export class SaleorAuthStorageHandler {
+export class SaleorRefreshTokenStorageHandler {
   constructor(
-    private storage: Storage,
+    private storage: StorageRepository,
     private prefix?: string,
   ) {
-    window.addEventListener("storage", this.handleStorageChange);
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", this.handleStorageChange);
+    }
   }
 
   private handleStorageChange = (event: StorageEvent) => {
@@ -29,15 +33,19 @@ export class SaleorAuthStorageHandler {
   };
 
   cleanup = () => {
-    window.removeEventListener("storage", this.handleStorageChange);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", this.handleStorageChange);
+    }
   };
 
   /* auth state */
   sendAuthStateEvent = (authState: AuthState) => {
-    const event = new CustomEvent(getStorageAuthEventKey(this.prefix), {
-      detail: { authState },
-    });
-    window.dispatchEvent(event);
+    if (typeof window !== "undefined") {
+      const event = new CustomEvent(getStorageAuthEventKey(this.prefix), {
+        detail: { authState },
+      });
+      window.dispatchEvent(event);
+    }
   };
 
   getAuthState = (): AuthState =>

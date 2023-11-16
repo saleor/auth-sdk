@@ -90,3 +90,9 @@ export enum ExternalProvider {
   OpenIDConnect = "mirumee.authentication.openidconnect",
   SaleorCloud = "cloud_auth.CloudAuthorizationPlugin",
 }
+
+export interface StorageRepository {
+  getItem(key: string): string | null;
+  removeItem(key: string): void;
+  setItem(key: string, value: string): void;
+}

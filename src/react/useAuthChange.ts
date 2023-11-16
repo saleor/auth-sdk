@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { type SaleorAuthEvent, getStorageAuthEventKey } from "../SaleorAuthStorageHandler";
+import { type SaleorAuthEvent, getStorageAuthEventKey } from "../SaleorRefreshTokenStorageHandler";
 
 interface UseAuthChangeProps {
   saleorApiUrl: string;

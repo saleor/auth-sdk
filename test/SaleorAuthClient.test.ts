@@ -1,6 +1,6 @@
 import { it, describe, vi, expect } from "vitest";
 import { SaleorAuthClient } from "../src/SaleorAuthClient";
-import { getRefreshTokenKey } from "../src/SaleorAuthStorageHandler";
+import { getRefreshTokenKey } from "../src/SaleorRefreshTokenStorageHandler";
 
 describe("SaleorAuthClient", () => {
   const mockStorage = {
