@@ -66,7 +66,7 @@ export class SaleorAuthClient {
     this.saleorApiUrl = saleorApiUrl;
 
     const refreshTokenRepo =
-      refreshTokenStorage || (typeof window !== "undefined" ? window.localStorage : undefined);
+      refreshTokenStorage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
     this.refreshTokenStorage = refreshTokenRepo
       ? new SaleorRefreshTokenStorageHandler(refreshTokenRepo, saleorApiUrl)
       : null;
@@ -210,17 +210,16 @@ export class SaleorAuthClient {
   fetchWithAuth: FetchWithAdditionalParams = async (input, init, additionalParams) => {
     const refreshToken = this.refreshTokenStorage?.getRefreshToken();
 
-    let accessToken = this.acessTokenStorage.getAccessToken();
-    if (!accessToken) {
-      if (typeof document !== "undefined") {
-        const tokenFromCookie = cookie.parse(document.cookie).token ?? null;
-        if (tokenFromCookie) {
-          this.acessTokenStorage.setAccessToken(tokenFromCookie);
-          accessToken = tokenFromCookie;
-        }
-        document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
+    if (!this.acessTokenStorage.getAccessToken() && typeof document !== "undefined") {
+      // this flow is used by SaleorExternalAuth
+      const tokenFromCookie = cookie.parse(document.cookie).token ?? null;
+      if (tokenFromCookie) {
+        this.acessTokenStorage.setAccessToken(tokenFromCookie);
       }
+      document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
     }
+
+    const accessToken = this.acessTokenStorage.getAccessToken();
 
     // access token is fine, add it to the request and proceed
     if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
@@ -252,6 +251,7 @@ export class SaleorAuthClient {
     this.acessTokenStorage.clearAuthStorage();
     this.refreshTokenStorage?.clearAuthStorage();
     if (typeof document !== "undefined") {
+      // this flow is used by SaleorExternalAuth
       document.cookie = cookie.serialize("token", "", {
         expires: new Date(0),
         path: "/",

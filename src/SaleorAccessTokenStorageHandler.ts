@@ -9,7 +9,6 @@ export class SaleorAccessTokenStorageHandler {
     private prefix?: string,
   ) {}
 
-  /* Access token */
   getAccessToken = () => {
     const key = getAccessTokenKey(this.prefix);
     return this.storage.getItem(key);
