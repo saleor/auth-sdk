@@ -21,6 +21,7 @@ export interface SaleorAuthClientProps {
   refreshTokenStorage?: StorageRepository;
   accessTokenStorage?: StorageRepository;
   tokenGracePeriod?: number;
+  defaultRequestInit?: RequestInit;
 }
 
 export class SaleorAuthClient {
@@ -40,6 +41,8 @@ export class SaleorAuthClient {
    * Non-persistent storage for access token
    */
   private acessTokenStorage: SaleorAccessTokenStorageHandler;
+
+  private defaultRequestInit: RequestInit | undefined;
   /**
    * Use ths method to clear event listeners from storageHandler
    *  @example
@@ -58,7 +61,9 @@ export class SaleorAuthClient {
     accessTokenStorage,
     onAuthRefresh,
     tokenGracePeriod,
+    defaultRequestInit,
   }: SaleorAuthClientProps) {
+    this.defaultRequestInit = defaultRequestInit;
     if (tokenGracePeriod) {
       this.tokenGracePeriod = tokenGracePeriod;
     }
@@ -124,7 +129,7 @@ export class SaleorAuthClient {
 
   private handleRequestWithTokenRefresh: FetchWithAdditionalParams = async (
     input,
-    init,
+    requestInit,
     additionalParams,
   ) => {
     const refreshToken = this.refreshTokenStorage?.getRefreshToken();
@@ -135,7 +140,7 @@ export class SaleorAuthClient {
 
     // the refresh already finished, proceed as normal
     if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
-      return this.fetchWithAuth(input, init, additionalParams);
+      return this.fetchWithAuth(input, requestInit, additionalParams);
     }
 
     this.onAuthRefresh?.(true);
@@ -158,18 +163,21 @@ export class SaleorAuthClient {
       if (errors?.length || graphqlErrors?.length || !token) {
         this.tokenRefreshPromise = null;
         this.refreshTokenStorage?.clearAuthStorage();
-        return fetch(input, init);
+        return fetch(input, requestInit);
       }
 
       this.refreshTokenStorage?.setAuthState("signedIn");
       this.acessTokenStorage.setAccessToken(token);
       this.tokenRefreshPromise = null;
-      return this.runAuthorizedRequest(input, init, additionalParams);
+      return this.runAuthorizedRequest(input, requestInit, additionalParams);
     }
 
     // this is the first failed request, initialize refresh
-    this.tokenRefreshPromise = fetch(this.saleorApiUrl, getRequestData(TOKEN_REFRESH, { refreshToken }));
-    return this.fetchWithAuth(input, init, additionalParams);
+    this.tokenRefreshPromise = fetch(
+      this.saleorApiUrl,
+      getRequestData(TOKEN_REFRESH, { refreshToken }, { ...this.defaultRequestInit, ...requestInit }),
+    );
+    return this.fetchWithAuth(input, requestInit, additionalParams);
   };
 
   private handleSignIn = async <TOperation extends TokenCreateResponse | PasswordResetResponse>(
@@ -235,14 +243,20 @@ export class SaleorAuthClient {
     return fetch(input, init);
   };
 
-  resetPassword = async (variables: PasswordResetVariables) => {
-    const response = await fetch(this.saleorApiUrl, getRequestData(PASSWORD_RESET, variables));
+  resetPassword = async (variables: PasswordResetVariables, requestInit?: RequestInit) => {
+    const response = await fetch(
+      this.saleorApiUrl,
+      getRequestData(PASSWORD_RESET, variables, { ...this.defaultRequestInit, ...requestInit }),
+    );
 
     return this.handleSignIn<PasswordResetResponse>(response);
   };
 
-  signIn = async (variables: TokenCreateVariables) => {
-    const response = await fetch(this.saleorApiUrl, getRequestData(TOKEN_CREATE, variables));
+  signIn = async (variables: TokenCreateVariables, requestInit?: RequestInit) => {
+    const response = await fetch(
+      this.saleorApiUrl,
+      getRequestData(TOKEN_CREATE, variables, { ...this.defaultRequestInit, ...requestInit }),
+    );
 
     return this.handleSignIn<TokenCreateResponse>(response);
   };

@@ -44,7 +44,9 @@ export const isExpiredToken = (token: string, tokenGracePeriod: number) => {
 export const getRequestData = <TResult, TVariables>(
   query: TypedDocumentString<TResult, TVariables>,
   variables: TVariables,
+  requestInit?: Partial<RequestInit>,
 ) => ({
+  ...requestInit,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
