@@ -1,6 +1,6 @@
 {
   "name": "@saleor/auth-sdk",
-  "version": "0.13.1",
+  "version": "1.0.0",
   "description": "Auth SDK for Saleor",
   "sideEffects": false,
   "types": "index.d.ts",
