@@ -1,32 +1,32 @@
-name: QA
+name: Build, TypeScripts, tests
 on:
   pull_request:
   merge_group:
+    branches:
+      - main
 
 concurrency:
   group: tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v2
+      - name: Install PNPM
+        uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 8.10.0
 
       - uses: actions/setup-node@v3
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: package.json
           cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm --version && pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint:ci
-
-      - name: Test
-        run: CI=true pnpm test
+      - name: Run tests
+        run: pnpm test

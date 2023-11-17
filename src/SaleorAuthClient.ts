@@ -1,10 +1,11 @@
-import { SaleorAuthStorageHandler } from "./SaleorAuthStorageHandler";
+import { SaleorRefreshTokenStorageHandler } from "./SaleorRefreshTokenStorageHandler";
 import { getRequestData, getTokenIss, isExpiredToken } from "./utils";
 import type {
   FetchRequestInfo,
   FetchWithAdditionalParams,
   PasswordResetResponse,
   PasswordResetVariables,
+  StorageRepository,
   TokenCreateResponse,
   TokenCreateVariables,
   TokenRefreshResponse,
@@ -12,12 +13,15 @@ import type {
 import { invariant } from "./utils";
 import { PASSWORD_RESET, TOKEN_CREATE, TOKEN_REFRESH } from "./mutations";
 import cookie from "cookie";
+import { SaleorAccessTokenStorageHandler } from "./SaleorAccessTokenStorageHandler";
 
 export interface SaleorAuthClientProps {
   onAuthRefresh?: (isAuthenticating: boolean) => void;
   saleorApiUrl: string;
-  storage?: Storage;
+  refreshTokenStorage?: StorageRepository;
+  accessTokenStorage?: StorageRepository;
   tokenGracePeriod?: number;
+  defaultRequestInit?: RequestInit;
 }
 
 export class SaleorAuthClient {
@@ -25,11 +29,20 @@ export class SaleorAuthClient {
   // process our request
   private tokenGracePeriod = 2000;
 
-  private accessToken: string | null = null;
   private tokenRefreshPromise: null | Promise<Response> = null;
   private onAuthRefresh?: (isAuthenticating: boolean) => void;
   private saleorApiUrl: string;
-  private storageHandler: SaleorAuthStorageHandler | null;
+  /**
+   * Persistent storage (for refresh token)
+   */
+  private refreshTokenStorage: SaleorRefreshTokenStorageHandler | null;
+
+  /**
+   * Non-persistent storage for access token
+   */
+  private acessTokenStorage: SaleorAccessTokenStorageHandler;
+
+  private defaultRequestInit: RequestInit | undefined;
   /**
    * Use ths method to clear event listeners from storageHandler
    *  @example
@@ -42,27 +55,40 @@ export class SaleorAuthClient {
    *  ```
    */
 
-  constructor({ saleorApiUrl, storage, onAuthRefresh, tokenGracePeriod }: SaleorAuthClientProps) {
+  constructor({
+    saleorApiUrl,
+    refreshTokenStorage,
+    accessTokenStorage,
+    onAuthRefresh,
+    tokenGracePeriod,
+    defaultRequestInit,
+  }: SaleorAuthClientProps) {
+    this.defaultRequestInit = defaultRequestInit;
     if (tokenGracePeriod) {
       this.tokenGracePeriod = tokenGracePeriod;
     }
-
-    const internalStorage = storage || (typeof window !== "undefined" ? window.localStorage : undefined);
-    this.storageHandler = internalStorage
-      ? new SaleorAuthStorageHandler(internalStorage, saleorApiUrl)
-      : null;
     this.onAuthRefresh = onAuthRefresh;
     this.saleorApiUrl = saleorApiUrl;
+
+    const refreshTokenRepo =
+      refreshTokenStorage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
+    this.refreshTokenStorage = refreshTokenRepo
+      ? new SaleorRefreshTokenStorageHandler(refreshTokenRepo, saleorApiUrl)
+      : null;
+
+    const accessTokenRepo = accessTokenStorage ?? getInMemoryAccessTokenStorage();
+    this.acessTokenStorage = new SaleorAccessTokenStorageHandler(accessTokenRepo, saleorApiUrl);
   }
 
   cleanup = () => {
-    this.storageHandler?.cleanup();
+    this.refreshTokenStorage?.cleanup();
   };
 
   private runAuthorizedRequest: FetchWithAdditionalParams = (input, init, additionalParams) => {
     // technically we run this only when token is there
     // but just to make typescript happy
-    if (!this.accessToken) {
+    const token = this.acessTokenStorage.getAccessToken();
+    if (!token) {
       return fetch(input, init);
     }
 
@@ -78,7 +104,7 @@ export class SaleorAuthClient {
       }
     };
 
-    const iss = getTokenIss(this.accessToken);
+    const iss = getTokenIss(token);
     const issuerAndDomainMatch = getURL(input) === iss;
     const shouldAddAuthorizationHeader =
       issuerAndDomainMatch || additionalParams?.allowPassingTokenToThirdPartyDomains;
@@ -97,24 +123,24 @@ export class SaleorAuthClient {
 
     return fetch(input, {
       ...init,
-      headers: shouldAddAuthorizationHeader
-        ? { ...headers, Authorization: `Bearer ${this.accessToken}` }
-        : headers,
+      headers: shouldAddAuthorizationHeader ? { ...headers, Authorization: `Bearer ${token}` } : headers,
     });
   };
 
   private handleRequestWithTokenRefresh: FetchWithAdditionalParams = async (
     input,
-    init,
+    requestInit,
     additionalParams,
   ) => {
-    const refreshToken = this.storageHandler?.getRefreshToken();
+    const refreshToken = this.refreshTokenStorage?.getRefreshToken();
 
     invariant(refreshToken, "Missing refresh token in token refresh handler");
 
+    const accessToken = this.acessTokenStorage.getAccessToken();
+
     // the refresh already finished, proceed as normal
-    if (this.accessToken && !isExpiredToken(this.accessToken, this.tokenGracePeriod)) {
-      return this.fetchWithAuth(input, init, additionalParams);
+    if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
+      return this.fetchWithAuth(input, requestInit, additionalParams);
     }
 
     this.onAuthRefresh?.(true);
@@ -136,19 +162,22 @@ export class SaleorAuthClient {
 
       if (errors?.length || graphqlErrors?.length || !token) {
         this.tokenRefreshPromise = null;
-        this.storageHandler?.clearAuthStorage();
-        return fetch(input, init);
+        this.refreshTokenStorage?.clearAuthStorage();
+        return fetch(input, requestInit);
       }
 
-      this.storageHandler?.setAuthState("signedIn");
-      this.accessToken = token;
+      this.refreshTokenStorage?.setAuthState("signedIn");
+      this.acessTokenStorage.setAccessToken(token);
       this.tokenRefreshPromise = null;
-      return this.runAuthorizedRequest(input, init, additionalParams);
+      return this.runAuthorizedRequest(input, requestInit, additionalParams);
     }
 
     // this is the first failed request, initialize refresh
-    this.tokenRefreshPromise = fetch(this.saleorApiUrl, getRequestData(TOKEN_REFRESH, { refreshToken }));
-    return this.fetchWithAuth(input, init, additionalParams);
+    this.tokenRefreshPromise = fetch(
+      this.saleorApiUrl,
+      getRequestData(TOKEN_REFRESH, { refreshToken }, { ...this.defaultRequestInit, ...requestInit }),
+    );
+    return this.fetchWithAuth(input, requestInit, additionalParams);
   };
 
   private handleSignIn = async <TOperation extends TokenCreateResponse | PasswordResetResponse>(
@@ -166,19 +195,19 @@ export class SaleorAuthClient {
     const { errors, token, refreshToken } = responseData;
 
     if (!token || errors.length) {
-      this.storageHandler?.setAuthState("signedOut");
+      this.refreshTokenStorage?.setAuthState("signedOut");
       return readResponse;
     }
 
     if (token) {
-      this.accessToken = token;
+      this.acessTokenStorage.setAccessToken(token);
     }
 
     if (refreshToken) {
-      this.storageHandler?.setRefreshToken(refreshToken);
+      this.refreshTokenStorage?.setRefreshToken(refreshToken);
     }
 
-    this.storageHandler?.setAuthState("signedIn");
+    this.refreshTokenStorage?.setAuthState("signedIn");
     return readResponse;
   };
 
@@ -187,15 +216,21 @@ export class SaleorAuthClient {
    * @param additionalParams.allowPassingTokenToThirdPartyDomains if set to true, the `Authorization` header will be added to the request even if the token's `iss` and request URL do not match
    */
   fetchWithAuth: FetchWithAdditionalParams = async (input, init, additionalParams) => {
-    const refreshToken = this.storageHandler?.getRefreshToken();
+    const refreshToken = this.refreshTokenStorage?.getRefreshToken();
 
-    if (!this.accessToken) {
-      this.accessToken = cookie.parse(document.cookie).token ?? null;
+    if (!this.acessTokenStorage.getAccessToken() && typeof document !== "undefined") {
+      // this flow is used by SaleorExternalAuth
+      const tokenFromCookie = cookie.parse(document.cookie).token ?? null;
+      if (tokenFromCookie) {
+        this.acessTokenStorage.setAccessToken(tokenFromCookie);
+      }
       document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
     }
 
+    const accessToken = this.acessTokenStorage.getAccessToken();
+
     // access token is fine, add it to the request and proceed
-    if (this.accessToken && !isExpiredToken(this.accessToken, this.tokenGracePeriod)) {
+    if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
       return this.runAuthorizedRequest(input, init, additionalParams);
     }
 
@@ -208,26 +243,50 @@ export class SaleorAuthClient {
     return fetch(input, init);
   };
 
-  resetPassword = async (variables: PasswordResetVariables) => {
-    const response = await fetch(this.saleorApiUrl, getRequestData(PASSWORD_RESET, variables));
+  resetPassword = async (variables: PasswordResetVariables, requestInit?: RequestInit) => {
+    const response = await fetch(
+      this.saleorApiUrl,
+      getRequestData(PASSWORD_RESET, variables, { ...this.defaultRequestInit, ...requestInit }),
+    );
 
     return this.handleSignIn<PasswordResetResponse>(response);
   };
 
-  signIn = async (variables: TokenCreateVariables) => {
-    const response = await fetch(this.saleorApiUrl, getRequestData(TOKEN_CREATE, variables));
+  signIn = async (variables: TokenCreateVariables, requestInit?: RequestInit) => {
+    const response = await fetch(
+      this.saleorApiUrl,
+      getRequestData(TOKEN_CREATE, variables, { ...this.defaultRequestInit, ...requestInit }),
+    );
 
     return this.handleSignIn<TokenCreateResponse>(response);
   };
 
   signOut = () => {
-    this.accessToken = null;
-    this.storageHandler?.clearAuthStorage();
-    document.cookie = cookie.serialize("token", "", {
-      expires: new Date(0),
-      path: "/",
-    });
+    this.acessTokenStorage.clearAuthStorage();
+    this.refreshTokenStorage?.clearAuthStorage();
+    if (typeof document !== "undefined") {
+      // this flow is used by SaleorExternalAuth
+      document.cookie = cookie.serialize("token", "", {
+        expires: new Date(0),
+        path: "/",
+      });
+    }
   };
 }
 
 export const createSaleorAuthClient = (props: SaleorAuthClientProps) => new SaleorAuthClient(props);
+
+function getInMemoryAccessTokenStorage(): StorageRepository {
+  let accessToken: string | null = null;
+  return {
+    getItem() {
+      return accessToken;
+    },
+    removeItem() {
+      return (accessToken = null);
+    },
+    setItem(_key, value) {
+      return (accessToken = value);
+    },
+  };
+}

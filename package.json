@@ -23,7 +23,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@graphql-typed-document-node/core": "^3.2.0",
-    "cookie": "^0.5.0",
+    "cookie": "^0.6.0",
     "graphql": "^16.8.1"
   },
   "peerDependencies": {
@@ -33,9 +33,6 @@
     "urql": "^4.0.3"
   },
   "peerDependenciesMeta": {
-    "@apollo/client": {
-      "optional": true
-    },
     "react": {
       "optional": true
     },
@@ -50,35 +47,34 @@
     }
   },
   "devDependencies": {
-    "@apollo/client": "^3.8.6",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@types/cookie": "^0.5.3",
-    "@types/debug": "^4.1.10",
-    "@types/node": "^20.8.9",
-    "@types/node-fetch": "^2.6.7",
-    "@types/react": "^18.2.33",
-    "@types/react-dom": "^18.2.14",
-    "@types/uuid": "^9.0.6",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
-    "@typescript-eslint/parser": "^6.9.0",
-    "@vitejs/plugin-react": "^4.1.0",
+    "@types/cookie": "^0.5.4",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^20.9.0",
+    "@types/node-fetch": "^2.6.9",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "@vitejs/plugin-react": "^4.1.1",
     "clean-publish": "^4.2.0",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "jsdom": "^22.1.0",
-    "prettier": "^3.0.3",
+    "prettier": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "release-it": "^16.2.1",
+    "release-it": "^17.0.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
-    "urql": "^4.0.5",
+    "urql": "^4.0.6",
     "vite": "^4.5.0",
     "vitest": "^0.34.6",
     "vitest-fetch-mock": "^0.2.2"
@@ -99,6 +95,11 @@
       "import": "./next/index.mjs",
       "require": "./next/index.js"
     },
+    "./next/server": {
+      "types": "./next/server.d.ts",
+      "import": "./next/server.mjs",
+      "require": "./next/server.js"
+    },
     ".": {
       "types": "./index.d.ts",
       "import": "./index.mjs",
@@ -116,5 +117,8 @@
   "bugs": {
     "url": "https://github.com/saleor/auth-sdk/issues"
   },
-  "homepage": "https://github.com/saleor/auth-sdk#readme"
+  "homepage": "https://github.com/saleor/auth-sdk#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
