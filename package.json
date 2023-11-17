@@ -117,5 +117,8 @@
   "bugs": {
     "url": "https://github.com/saleor/auth-sdk/issues"
   },
-  "homepage": "https://github.com/saleor/auth-sdk#readme"
+  "homepage": "https://github.com/saleor/auth-sdk#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
