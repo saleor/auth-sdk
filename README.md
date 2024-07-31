@@ -44,7 +44,7 @@ import { getNextServerCookiesStorage } from "@saleor/auth-sdk/next/server";
 
 const getServerAuthClient = () => {
   const nextServerCookiesStorage = getNextServerCookiesStorage();
-  returncreateSaleorAuthClient({
+  return createSaleorAuthClient({
     saleorApiUrl: "…",
     refreshTokenStorage: nextServerCookiesStorage,
     accessTokenStorage: nextServerCookiesStorage,
