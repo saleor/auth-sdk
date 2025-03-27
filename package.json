@@ -28,8 +28,8 @@
   },
   "peerDependencies": {
     "next": "^15.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "urql": "^4.0.3"
   },
   "peerDependenciesMeta": {
@@ -54,8 +54,8 @@
     "@types/debug": "^4.1.12",
     "@types/node": "^20.17.28",
     "@types/node-fetch": "^2.6.12",
-    "@types/react": "^18.3.20",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
@@ -71,8 +71,8 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "jsdom": "^22.1.0",
     "prettier": "^3.5.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "release-it": "^17.11.0",
     "tsup": "^7.3.0",
     "typescript": "^5.8.2",
