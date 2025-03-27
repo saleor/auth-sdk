@@ -1,7 +1,8 @@
 import type { StorageRepository } from "../types";
-import { cookies } from "next/headers";
+import { cookies as asyncCookies } from "next/headers";
 
-export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
+export const getNextServerCookiesStorage = async (options: { secure?: boolean } = {}): Promise<StorageRepository> => {
+  const cookies = await asyncCookies();
   const secure = options.secure ?? true;
 
   const cache = new Map<string, string>();
@@ -9,17 +10,17 @@ export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}):
     getItem(key) {
       // We need to cache the value because cookies() returns stale data
       // if cookies().set(…) is called in the same request.
-      return cache.get(key) ?? cookies().get(key)?.value ?? null;
+      return cache.get(key) ?? cookies.get(key)?.value ?? null;
     },
     removeItem(key) {
       cache.delete(key);
-      cookies().delete(key);
+      cookies.delete(key);
     },
     setItem(key, value) {
       try {
         cache.set(key, value);
         const expires = tryGetExpFromJwt(value);
-        cookies().set(key, value, { httpOnly: true, sameSite: "lax", secure, expires });
+        cookies.set(key, value, { httpOnly: true, sameSite: "lax", secure, expires });
       } catch {
         // noop
       }

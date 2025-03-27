@@ -34,7 +34,7 @@ Saleor Auth SDK integrates secure and customizable authentication and authorizat
 
 ### Next.js App Router
 
-Next.js 13+ App Router is the recommended way to use the Saleor Auth SDK. It is the easiest to set up and provides the best user experience.
+Next.js 15 App Router is the recommended way to use the Saleor Auth SDK. It is the easiest to set up and provides the best user experience.
 
 In order to use Saleor Auth SDK in React Server Components, the client needs to be created in the following way:
 
@@ -42,9 +42,9 @@ In order to use Saleor Auth SDK in React Server Components, the client needs to 
 import { createSaleorAuthClient } from "@saleor/auth-sdk";
 import { getNextServerCookiesStorage } from "@saleor/auth-sdk/next/server";
 
-const getServerAuthClient = () => {
-  const nextServerCookiesStorage = getNextServerCookiesStorage();
-  return createSaleorAuthClient({
+const getServerAuthClient = async () => {
+  const nextServerCookiesStorage = await getNextServerCookiesStorage();
+  return await createSaleorAuthClient({
     saleorApiUrl: "…",
     refreshTokenStorage: nextServerCookiesStorage,
     accessTokenStorage: nextServerCookiesStorage,
