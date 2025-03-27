@@ -3,6 +3,21 @@ import { SaleorAuthClient } from "../src/SaleorAuthClient";
 import { getRefreshTokenKey } from "../src/SaleorRefreshTokenStorageHandler";
 import type { StorageRepository } from "../src";
 
+async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let result = "";
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    result += decoder.decode(value, { stream: true });
+  }
+
+  return result;
+}
+
 describe("SaleorAuthClient", () => {
   const mockStorage = {
     getItem: vi.fn(),
@@ -48,7 +63,7 @@ describe("SaleorAuthClient", () => {
     });
 
     fetchMock.mockResponse(async (req) => {
-      if (req?.body?.toString().includes("tokenRefresh")) {
+      if (req.body && (await streamToString(req.body)).includes("tokenRefresh")) {
         return JSON.stringify({
           data: {
             tokenRefresh: {
@@ -88,7 +103,7 @@ describe("SaleorAuthClient", () => {
     });
 
     fetchMock.mockResponse(async (req) => {
-      if (req?.body?.toString().includes("tokenRefresh")) {
+      if (req.body && (await streamToString(req.body)).includes("tokenRefresh")) {
         return JSON.stringify({
           data: {
             tokenRefresh: {
@@ -145,7 +160,7 @@ describe("SaleorAuthClient", () => {
     });
 
     fetchMock.mockResponse(async (req) => {
-      if (req?.body?.toString().includes("tokenRefresh")) {
+      if (req.body && (await streamToString(req.body)).includes("tokenRefresh")) {
         return JSON.stringify({
           data: {
             tokenRefresh: {

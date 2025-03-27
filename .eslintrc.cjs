@@ -17,4 +17,5 @@ module.exports = {
     "@typescript-eslint/require-await": "off",
     "no-empty-pattern": "off",
   },
+  ignorePatterns: [".eslintrc.cjs"],
 };

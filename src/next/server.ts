@@ -1,7 +1,9 @@
 import type { StorageRepository } from "../types";
 import { cookies as asyncCookies } from "next/headers";
 
-export const getNextServerCookiesStorage = async (options: { secure?: boolean } = {}): Promise<StorageRepository> => {
+export const getNextServerCookiesStorage = async (
+  options: { secure?: boolean } = {},
+): Promise<StorageRepository> => {
   const cookies = await asyncCookies();
   const secure = options.secure ?? true;
 
