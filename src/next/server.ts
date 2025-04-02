@@ -3,10 +3,7 @@ import { cookies } from "next/headers";
 
 type CookieStore = ReturnType<typeof cookies>;
 
-const nextStorageRepository = (
-  options: { secure?: boolean } = {},
-  cookies: CookieStore,
-): StorageRepository => {
+const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: CookieStore): StorageRepository => {
   const secure = options.secure ?? true;
   const cache = new Map<string, string>();
 
@@ -41,10 +38,7 @@ export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}):
 
   return nextStorageRepository(options, cookieStore);
 };
-
-export const getNextServerCookiesStorageAsync = async (
-  options: { secure?: boolean } = {},
-): Promise<StorageRepository> => {
+export const getNextServerCookiesStorageAsync = async (options: { secure?: boolean } = {}): Promise<StorageRepository> => {
   if (!(cookies() instanceof Promise)) {
     throw Error("This function should only be used with async cookies!");
   }
