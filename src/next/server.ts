@@ -1,30 +1,55 @@
 import type { StorageRepository } from "../types";
 import { cookies } from "next/headers";
 
-export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
-  const secure = options.secure ?? true;
+type CookieStore = ReturnType<typeof cookies>
 
+const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: CookieStore): StorageRepository  => {
+  const secure = options.secure ?? true;
   const cache = new Map<string, string>();
+
   return {
     getItem(key) {
       // We need to cache the value because cookies() returns stale data
       // if cookies().set(…) is called in the same request.
-      return cache.get(key) ?? cookies().get(key)?.value ?? null;
+      return cache.get(key) ?? cookies.get(key)?.value ?? null;
     },
     removeItem(key) {
       cache.delete(key);
-      cookies().delete(key);
+      cookies.delete(key);
     },
     setItem(key, value) {
       try {
         cache.set(key, value);
         const expires = tryGetExpFromJwt(value);
-        cookies().set(key, value, { httpOnly: true, sameSite: "lax", secure, expires });
+        cookies.set(key, value, { httpOnly: true, sameSite: "lax", secure, expires });
       } catch {
         // noop
       }
     },
   };
+}
+
+export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
+
+  if (cookies() instanceof Promise) {
+      throw Error("This function should not be used with async cookies!");
+  }
+
+  const cookieStore = cookies();
+
+  return nextStorageRepository(options, cookieStore);
+};
+
+
+export const getNextServerCookiesStorageAsync = async (options: { secure?: boolean } = {}): Promise<StorageRepository > => {
+
+  if (!(cookies() instanceof Promise)) {
+      throw Error("This function should only be used with async cookies!");
+  }
+
+  const cookieStore = await cookies();
+
+  return nextStorageRepository(options, cookieStore);
 };
 
 /**
