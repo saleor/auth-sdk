@@ -1,9 +1,12 @@
 import type { StorageRepository } from "../types";
 import { cookies } from "next/headers";
 
-type CookieStore = ReturnType<typeof cookies>
+type CookieStore = ReturnType<typeof cookies>;
 
-const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: CookieStore): StorageRepository  => {
+const nextStorageRepository = (
+  options: { secure?: boolean } = {},
+  cookies: CookieStore,
+): StorageRepository => {
   const secure = options.secure ?? true;
   const cache = new Map<string, string>();
 
@@ -27,12 +30,11 @@ const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: Cook
       }
     },
   };
-}
+};
 
 export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
-
   if (cookies() instanceof Promise) {
-      throw Error("This function should not be used with async cookies!");
+    throw Error("This function should not be used with async cookies!");
   }
 
   const cookieStore = cookies();
@@ -40,14 +42,17 @@ export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}):
   return nextStorageRepository(options, cookieStore);
 };
 
-
-export const getNextServerCookiesStorageAsync = async (options: { secure?: boolean } = {}): Promise<StorageRepository > => {
-
+export const getNextServerCookiesStorageAsync = async (
+  options: { secure?: boolean } = {},
+): Promise<StorageRepository> => {
   if (!(cookies() instanceof Promise)) {
-      throw Error("This function should only be used with async cookies!");
+    throw Error("This function should only be used with async cookies!");
   }
 
+  // Eslint isn't smart enough to know this will never be reached if cookies() is not a Promise.
+  /* eslint-disable @typescript-eslint/await-thenable */
   const cookieStore = await cookies();
+  /* eslint-enable */
 
   return nextStorageRepository(options, cookieStore);
 };
