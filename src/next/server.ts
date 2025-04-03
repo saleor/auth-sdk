@@ -27,8 +27,13 @@ const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: Cook
       }
     },
   };
-};
+}
 
+/**
+ * Retrieves a synchronous storage repository for cookies in Next.js 13 or 14.
+ *
+ * This function should **not** be used if `cookies()` returns a Promise.
+ */
 export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
     const maybeCookiesPromise = cookies();
   if (maybeCookiesPromise instanceof Promise) {
@@ -38,6 +43,11 @@ export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}):
   return nextStorageRepository(options, maybeCookiesPromise);
 };
 
+/**
+ * Retrieves an asynchronous storage repository for cookies in Next.js 15.
+ *
+ * This function should **only** be used if `cookies()` returns a Promise.
+ */
 export const getNextServerCookiesStorageAsync = async (options: { secure?: boolean } = {}): Promise<StorageRepository> => {
     const maybeCookiesPromise = cookies();
   if (!(maybeCookiesPromise instanceof Promise)) {
