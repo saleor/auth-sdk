@@ -30,22 +30,23 @@ const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: Cook
 };
 
 export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
-  if (cookies() instanceof Promise) {
+    const maybeCookiesPromise = cookies();
+  if (maybeCookiesPromise instanceof Promise) {
     throw Error("This function should not be used with async cookies!");
   }
 
-  const cookieStore = cookies();
-
-  return nextStorageRepository(options, cookieStore);
+  return nextStorageRepository(options, maybeCookiesPromise);
 };
+
 export const getNextServerCookiesStorageAsync = async (options: { secure?: boolean } = {}): Promise<StorageRepository> => {
-  if (!(cookies() instanceof Promise)) {
+    const maybeCookiesPromise = cookies();
+  if (!(maybeCookiesPromise instanceof Promise)) {
     throw Error("This function should only be used with async cookies!");
   }
 
   // Eslint isn't smart enough to know this will never be reached if cookies() is not a Promise.
   /* eslint-disable @typescript-eslint/await-thenable */
-  const cookieStore = await cookies();
+  const cookieStore = await maybeCookiesPromise as CookieStore;
   /* eslint-enable */
 
   return nextStorageRepository(options, cookieStore);
