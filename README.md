@@ -34,9 +34,14 @@ Saleor Auth SDK integrates secure and customizable authentication and authorizat
 
 ### Next.js App Router
 
-Next.js 13+ App Router is the recommended way to use the Saleor Auth SDK. It is the easiest to set up and provides the best user experience.
+The Saleor Auth SDK supports both **Next.js 13/14** and **Next.js 15**, but due to changes in how cookies are handled, different storage methods are required for each version.
 
-In order to use Saleor Auth SDK in React Server Components, the client needs to be created in the following way:
+---
+
+## **Using Saleor Auth SDK in Next.js 13/14**
+Next.js 13 and 14 support **synchronous cookies**, which means you can use the `getNextServerCookiesStorage` function without issues.
+
+## **Setting Up the Auth Client (Next.js 13/14)**
 
 ```ts
 import { createSaleorAuthClient } from "@saleor/auth-sdk";
@@ -61,6 +66,47 @@ Logging in can be implemented via Server Actions:
     "use server";
 
     await getServerAuthClient().signIn(
+      {
+        email: formData.get("email").toString(),
+        password: formData.get("password").toString(),
+      },
+      { cache: "no-store" },
+    );
+  }}
+>
+  {/* … rest of the form … */}
+</form>
+```
+
+## **Using Saleor Auth SDK in Next.js 15**
+
+Next.js 15 introduces asynchronous cookies, requiring the use of getNextServerCookiesStorageAsync instead.
+
+## **Setting Up the Auth Client (Next.js 15)**
+
+```ts
+import { createSaleorAuthClient } from "@saleor/auth-sdk";
+import { getNextServerCookiesStorageAsync } from "@saleor/auth-sdk/next/server";
+
+const getServerAuthClient = async () => {
+  const nextServerCookiesStorage = await getNextServerCookiesStorageAsync();
+  return createSaleorAuthClient({
+    saleorApiUrl: "…",
+    refreshTokenStorage: nextServerCookiesStorage,
+    accessTokenStorage: nextServerCookiesStorage,
+  });
+};
+```
+
+Logging in can be implemented via Server Actions:
+
+```tsx
+<form
+  className="bg-white shadow-md rounded p-8"
+  action={async (formData) => {
+    "use server";
+
+    await (await getServerAuthClient()).signIn(
       {
         email: formData.get("email").toString(),
         password: formData.get("password").toString(),
