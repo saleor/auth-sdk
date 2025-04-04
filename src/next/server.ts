@@ -1,30 +1,65 @@
 import type { StorageRepository } from "../types";
 import { cookies } from "next/headers";
 
-export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
-  const secure = options.secure ?? true;
+type CookieStore = ReturnType<typeof cookies>;
 
+const nextStorageRepository = (options: { secure?: boolean } = {}, cookies: CookieStore): StorageRepository => {
+  const secure = options.secure ?? true;
   const cache = new Map<string, string>();
+
   return {
     getItem(key) {
       // We need to cache the value because cookies() returns stale data
       // if cookies().set(…) is called in the same request.
-      return cache.get(key) ?? cookies().get(key)?.value ?? null;
+      return cache.get(key) ?? cookies.get(key)?.value ?? null;
     },
     removeItem(key) {
       cache.delete(key);
-      cookies().delete(key);
+      cookies.delete(key);
     },
     setItem(key, value) {
       try {
         cache.set(key, value);
         const expires = tryGetExpFromJwt(value);
-        cookies().set(key, value, { httpOnly: true, sameSite: "lax", secure, expires });
+        cookies.set(key, value, { httpOnly: true, sameSite: "lax", secure, expires });
       } catch {
         // noop
       }
     },
   };
+}
+
+/**
+ * Retrieves a synchronous storage repository for cookies in Next.js 13 or 14.
+ *
+ * This function should **not** be used if `cookies()` returns a Promise.
+ */
+export const getNextServerCookiesStorage = (options: { secure?: boolean } = {}): StorageRepository => {
+    const maybeCookiesPromise = cookies();
+  if (maybeCookiesPromise instanceof Promise) {
+    throw Error("This function should not be used with async cookies!");
+  }
+
+  return nextStorageRepository(options, maybeCookiesPromise);
+};
+
+/**
+ * Retrieves an asynchronous storage repository for cookies in Next.js 15.
+ *
+ * This function should **only** be used if `cookies()` returns a Promise.
+ */
+export const getNextServerCookiesStorageAsync = async (options: { secure?: boolean } = {}): Promise<StorageRepository> => {
+    const maybeCookiesPromise = cookies();
+  if (!(maybeCookiesPromise instanceof Promise)) {
+    throw Error("This function should only be used with async cookies!");
+  }
+
+  // Eslint isn't smart enough to know this will never be reached if cookies() is not a Promise.
+  /* eslint-disable @typescript-eslint/await-thenable */
+  const cookieStore = await maybeCookiesPromise as CookieStore;
+  /* eslint-enable */
+
+  return nextStorageRepository(options, cookieStore);
 };
 
 /**
