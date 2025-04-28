@@ -40,7 +40,7 @@ export class SaleorAuthClient {
   /**
    * Non-persistent storage for access token
    */
-  private acessTokenStorage: SaleorAccessTokenStorageHandler;
+  private accessTokenStorage: SaleorAccessTokenStorageHandler;
 
   private defaultRequestInit: RequestInit | undefined;
   /**
@@ -77,7 +77,7 @@ export class SaleorAuthClient {
       : null;
 
     const accessTokenRepo = accessTokenStorage ?? getInMemoryAccessTokenStorage();
-    this.acessTokenStorage = new SaleorAccessTokenStorageHandler(accessTokenRepo, saleorApiUrl);
+    this.accessTokenStorage = new SaleorAccessTokenStorageHandler(accessTokenRepo, saleorApiUrl);
   }
 
   cleanup = () => {
@@ -87,7 +87,7 @@ export class SaleorAuthClient {
   private runAuthorizedRequest: FetchWithAdditionalParams = (input, init, additionalParams) => {
     // technically we run this only when token is there
     // but just to make typescript happy
-    const token = this.acessTokenStorage.getAccessToken();
+    const token = this.accessTokenStorage.getAccessToken();
     if (!token) {
       return fetch(input, init);
     }
@@ -136,7 +136,7 @@ export class SaleorAuthClient {
 
     invariant(refreshToken, "Missing refresh token in token refresh handler");
 
-    const accessToken = this.acessTokenStorage.getAccessToken();
+    const accessToken = this.accessTokenStorage.getAccessToken();
 
     // the refresh already finished, proceed as normal
     if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
@@ -167,7 +167,7 @@ export class SaleorAuthClient {
       }
 
       this.refreshTokenStorage?.setAuthState("signedIn");
-      this.acessTokenStorage.setAccessToken(token);
+      this.accessTokenStorage.setAccessToken(token);
       this.tokenRefreshPromise = null;
       return this.runAuthorizedRequest(input, requestInit, additionalParams);
     }
@@ -200,7 +200,7 @@ export class SaleorAuthClient {
     }
 
     if (token) {
-      this.acessTokenStorage.setAccessToken(token);
+      this.accessTokenStorage.setAccessToken(token);
     }
 
     if (refreshToken) {
@@ -218,16 +218,16 @@ export class SaleorAuthClient {
   fetchWithAuth: FetchWithAdditionalParams = async (input, init, additionalParams) => {
     const refreshToken = this.refreshTokenStorage?.getRefreshToken();
 
-    if (!this.acessTokenStorage.getAccessToken() && typeof document !== "undefined") {
+    if (!this.accessTokenStorage.getAccessToken() && typeof document !== "undefined") {
       // this flow is used by SaleorExternalAuth
       const tokenFromCookie = cookie.parse(document.cookie).token ?? null;
       if (tokenFromCookie) {
-        this.acessTokenStorage.setAccessToken(tokenFromCookie);
+        this.accessTokenStorage.setAccessToken(tokenFromCookie);
       }
       document.cookie = cookie.serialize("token", "", { expires: new Date(0), path: "/" });
     }
 
-    const accessToken = this.acessTokenStorage.getAccessToken();
+    const accessToken = this.accessTokenStorage.getAccessToken();
 
     // access token is fine, add it to the request and proceed
     if (accessToken && !isExpiredToken(accessToken, this.tokenGracePeriod)) {
@@ -262,7 +262,7 @@ export class SaleorAuthClient {
   };
 
   signOut = () => {
-    this.acessTokenStorage.clearAuthStorage();
+    this.accessTokenStorage.clearAuthStorage();
     this.refreshTokenStorage?.clearAuthStorage();
     if (typeof document !== "undefined") {
       // this flow is used by SaleorExternalAuth
