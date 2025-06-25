@@ -219,7 +219,7 @@ export default function LoginPage() {
       password: "admin",
     });
 
-    if (result.data.tokenCreate.errors) {
+    if (result.data.tokenCreate.errors.length) {
       // handle errors
     }
   };
