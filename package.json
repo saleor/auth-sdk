@@ -50,7 +50,7 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@types/cookie": "^0.5.4",
     "@types/debug": "^4.1.12",
-    "@types/node": "^20.9.1",
+    "@types/node": "^22.15.34",
     "@types/node-fetch": "^2.6.9",
     "@types/react": "^18.2.37 || ^19.0.0",
     "@types/react-dom": "^18.2.15 || ^19.0.0",
@@ -119,6 +119,7 @@
   },
   "homepage": "https://github.com/saleor/auth-sdk#readme",
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=22.14.0"
+  },
+  "packageManager": "pnpm@10.6.3"
 }
