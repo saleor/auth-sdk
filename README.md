@@ -19,16 +19,12 @@ Saleor Auth SDK integrates secure and customizable authentication and authorizat
   <span> • </span>
   <a href="https://twitter.com/getsaleor">Twitter</a>
   <span> • </span>
-  <a href="https://discord.gg/unUfh24R6d">Discord</a>
+  <a href="https://saleor.io/discord">Discord</a>
 </div>
 
 <br/>
 
-<div align="center">
 
-[![Discord Badge](https://dcbadge.vercel.app/api/server/unUfh24R6d)](https://discord.gg/unUfh24R6d)
-
-</div>
 
 ## Usage
 
