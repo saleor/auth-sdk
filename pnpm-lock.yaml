@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      '-':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.8.1)
+      '@urql/core':
+        specifier: ^6.0.1
+        version: 6.0.1(graphql@16.8.1)
       cookie:
         specifier: ^0.6.0
         version: 0.6.0
@@ -100,8 +106,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
       urql:
-        specifier: ^4.0.6
-        version: 4.0.6(graphql@16.8.1)(react@18.2.0)
+        specifier: ^5.0.1
+        version: 5.0.1(@urql/core@6.0.1(graphql@16.8.1))(react@18.2.0)
       vite:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@22.15.34)
@@ -115,8 +121,11 @@ importers:
 
 packages:
 
-  '@0no-co/graphql.web@1.0.4':
-    resolution: {integrity: sha512-W3ezhHGfO0MS1PtGloaTpg0PbaT8aZSmmaerL7idtU5F7oCI+uu25k+MsMS31BVFlp4aMkHSrNRxiD72IlK8TA==}
+  '-@0.0.1':
+    resolution: {integrity: sha512-3HfneK3DGAm05fpyj20sT3apkNcvPpCuccOThOPdzz8sY7GgQGe0l93XH9bt+YzibcTIgUAIMoyVJI740RtgyQ==}
+
+  '@0no-co/graphql.web@1.2.0':
+    resolution: {integrity: sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw==}
     peerDependencies:
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
     peerDependenciesMeta:
@@ -775,8 +784,8 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  '@urql/core@4.2.0':
-    resolution: {integrity: sha512-GRkZ4kECR9UohWAjiSk2UYUetco6/PqSrvyC4AH6g16tyqEShA63M232cfbE1J9XJPaGNjia14Gi+oOqzp144w==}
+  '@urql/core@6.0.1':
+    resolution: {integrity: sha512-FZDiQk6jxbj5hixf2rEPv0jI+IZz0EqqGW8mJBEug68/zHTtT+f34guZDmyjJZyiWbj0vL165LoMr/TkeDHaug==}
 
   '@vitejs/plugin-react@4.2.0':
     resolution: {integrity: sha512-+MHTH/e6H12kRp5HUkzOGqPMksezRMmW+TNzlh/QXfI8rRf6l2Z2yH/v12no1UvTwhZgEDMuQ7g7rrfMseU6FQ==}
@@ -3026,9 +3035,10 @@ packages:
   url-parse@1.5.10:
     resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
 
-  urql@4.0.6:
-    resolution: {integrity: sha512-meXJ2puOd64uCGKh7Fse2R7gPa8+ZpBOoA62jN7CPXXUt7SVZSdeXWSpB3HvlfzLUkEqsWbvshwrgeWRYNNGaQ==}
+  urql@5.0.1:
+    resolution: {integrity: sha512-r58gYlWvCTC19QvkTaARaCLV9/bp870byH/qbLaw3S7f8i/bC6x2Szub8RVXptiMxWmqq5dyVBjUL9G+xPEuqg==}
     peerDependencies:
+      '@urql/core': ^6.0.0
       react: '>= 16.8.0'
 
   util-deprecate@1.0.2:
@@ -3248,7 +3258,9 @@ publishDirectory: dist
 
 snapshots:
 
-  '@0no-co/graphql.web@1.0.4(graphql@16.8.1)':
+  '-@0.0.1': {}
+
+  '@0no-co/graphql.web@1.2.0(graphql@16.8.1)':
     optionalDependencies:
       graphql: 16.8.1
 
@@ -3863,9 +3875,9 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@urql/core@4.2.0(graphql@16.8.1)':
+  '@urql/core@6.0.1(graphql@16.8.1)':
     dependencies:
-      '@0no-co/graphql.web': 1.0.4(graphql@16.8.1)
+      '@0no-co/graphql.web': 1.2.0(graphql@16.8.1)
       wonka: 6.3.4
     transitivePeerDependencies:
       - graphql
@@ -6429,13 +6441,11 @@ snapshots:
       querystringify: 2.2.0
       requires-port: 1.0.0
 
-  urql@4.0.6(graphql@16.8.1)(react@18.2.0):
+  urql@5.0.1(@urql/core@6.0.1(graphql@16.8.1))(react@18.2.0):
     dependencies:
-      '@urql/core': 4.2.0(graphql@16.8.1)
+      '@urql/core': 6.0.1(graphql@16.8.1)
       react: 18.2.0
       wonka: 6.3.4
-    transitivePeerDependencies:
-      - graphql
 
   util-deprecate@1.0.2: {}
 
