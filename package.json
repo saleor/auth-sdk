@@ -22,7 +22,6 @@
   "author": "Saleor Team",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "-": "^0.0.1",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@urql/core": "^6.0.1",
     "cookie": "^0.6.0",
