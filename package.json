@@ -23,7 +23,6 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@urql/core": "^6.0.1",
     "cookie": "^0.6.0",
     "graphql": "^16.8.1"
   },
