@@ -453,3 +453,17 @@ const response = await resetPassword({
   token: "apiToken",
 });
 ```
+
+
+
+## Releasing
+
+1. Merge all needed changes to the `main` branch.
+2. Use [the example](https://github.com/saleor/examples/tree/main/example-auth-nextjs-apollo-urql) to manually test changes. First run `pnpm run build` in auth-sdk, then `pnpm link` from the example to locally link the package.
+3. Update (increment) package version in package.json.
+4. Open a PR and merge release changes to the `main` branch.
+5. Create a tag with a version, e.g. `1.0.5` and push it with `--tags`.
+6. Create Github release from the tag.
+7. Run `pnpm publish` from local machine, from latest `main` branch.
+
+TODO: Add `changesets` package for automated release flow and workflow similar to @saleor/app-sdk
