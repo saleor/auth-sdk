@@ -23,7 +23,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@graphql-typed-document-node/core": "^3.2.0",
-    "cookie": "^0.6.0",
+    "cookie": "^1.0.2",
     "graphql": "^16.8.1"
   },
   "peerDependencies": {
@@ -48,7 +48,6 @@
   },
   "devDependencies": {
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@types/cookie": "^0.5.4",
     "@types/debug": "^4.1.12",
     "@types/node": "^22.15.34",
     "@types/node-fetch": "^2.6.9",
